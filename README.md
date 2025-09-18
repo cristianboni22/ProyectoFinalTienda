@@ -77,3 +77,10 @@ uvicorn app.main:app --reload --port 5000
 # Crear tablas automáticamente (opcional si falla la inicialización)
 python -c "from app.main import create_tables; create_tables()"
 ~~~
+
+
+
+# Levantamiento de Cliente dentro del contendor 
+
+cd frontend
+npm run dev
