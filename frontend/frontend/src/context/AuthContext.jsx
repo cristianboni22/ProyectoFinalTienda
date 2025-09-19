@@ -1,0 +1,1 @@
+//guardar si el usuario está logueado, su token y sus datos

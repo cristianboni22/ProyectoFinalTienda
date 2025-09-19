@@ -1,0 +1,1 @@
+//manejar carrito (productos añadidos, cantidades, total).
