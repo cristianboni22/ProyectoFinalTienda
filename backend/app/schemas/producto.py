@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 class ProductoBase(BaseModel):
     nombre: str = Field(..., max_length=100)
@@ -17,7 +17,12 @@ class ProductoCreate(ProductoBase):
 
 class ProductoOut(ProductoBase):
     id: int
-    fecha_agregado: Optional[datetime]
-    
-    class Config:
-        orm_mode = True
+    nombre: str
+    descripcion: str
+    precio: float
+    stock: int
+    imagenes: list[str] = []  
+
+    model_config = {
+        "from_attributes": True
+    }

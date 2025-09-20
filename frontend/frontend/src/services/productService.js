@@ -1,20 +1,32 @@
-// services/productService.js
-const API_URL = "http://localhost:8000"; // apunta a tu backend
+import axios from "axios";
 
-// Obtener todos los productos
-export async function getProducts() {
-  const response = await fetch(`${API_URL}/productos`);
-  if (!response.ok) {
-    throw new Error("Error al obtener productos");
-  }
-  return response.json(); // devuelve la lista de productos
-}
+// URL base correcta para tu backend
+const API_URL = "http://localhost:8000";
 
-// Obtener producto por id
-export async function getProductById(id) {
-  const response = await fetch(`${API_URL}/productos/${id}`);
-  if (!response.ok) {
-    throw new Error("Error al obtener producto");
-  }
-  return response.json();
-}
+const productService = {
+  getAll: async () => {
+    const response = await axios.get(`${API_URL}/producto/`);
+    return response.data;
+  },
+
+  getById: async (id) => {
+    const response = await axios.get(`${API_URL}/producto/${id}`);
+    return response.data;
+  },
+
+  create: async (producto) => {
+    const response = await axios.post(`${API_URL}/producto/`, producto);
+    return response.data;
+  },
+
+  update: async (id, producto) => {
+    const response = await axios.put(`${API_URL}/producto/${id}`, producto);
+    return response.data;
+  },
+
+  delete: async (id) => {
+    await axios.delete(`${API_URL}/producto/${id}`);
+  },
+};
+
+export default productService;

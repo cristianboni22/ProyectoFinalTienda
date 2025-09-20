@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app import models
-from app.schemas.imagen import ImagenCreate, Imagen
+from app.schemas.imagen import ImagenCreate, ImagenOut
+from app.schemas.producto import ProductoOut
 import os
 from typing import List
 from datetime import datetime
@@ -15,92 +16,57 @@ IMAGE_STORAGE_PATH = "static/images"
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
-@router.post("/", response_model=Imagen, status_code=status.HTTP_201_CREATED)
-async def crear_imagen(
-    id_producto: int,
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db)
-):
-    try:
-        # Validate product exists
-        producto = db.query(models.Producto).filter(models.Producto.id == id_producto).first()
-        if not producto:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Producto no encontrado"
-            )
+@router.post("/", response_model=ImagenOut, status_code=status.HTTP_201_CREATED)
+async def crear_imagen(id_producto: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    producto = db.query(models.Producto).filter(models.Producto.id == id_producto).first()
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
 
-        # Validate file
-        file_extension = file.filename.split('.')[-1].lower()
-        if file_extension not in ALLOWED_EXTENSIONS:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Tipo de archivo no permitido. Use: {', '.join(ALLOWED_EXTENSIONS)}"
-            )
+    ext = file.filename.split(".")[-1].lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(status_code=400, detail=f"Tipo no permitido: {', '.join(ALLOWED_EXTENSIONS)}")
 
-        # Check file size
-        file.file.seek(0, 2)  # Move to end of file
-        file_size = file.file.tell()
-        if file_size > MAX_FILE_SIZE:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"El archivo es demasiado grande. Tamaño máximo: {MAX_FILE_SIZE//(1024*1024)}MB"
-            )
-        file.file.seek(0)  # Reset file pointer
+    os.makedirs(IMAGE_STORAGE_PATH, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    filename = f"product_{id_producto}_{timestamp}.{ext}"
+    file_path = os.path.join(IMAGE_STORAGE_PATH, filename)
 
-        # Create directory if not exists
-        os.makedirs(IMAGE_STORAGE_PATH, exist_ok=True)
+    with open(file_path, "wb") as buffer:
+        buffer.write(await file.read())
 
-        # Generate unique filename
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        filename = f"product_{id_producto}_{timestamp}.{file_extension}"
-        file_path = os.path.join(IMAGE_STORAGE_PATH, filename)
+    db_imagen = models.Imagen(id_producto=id_producto, url_imagen=f"/{file_path}")
+    db.add(db_imagen)
+    db.commit()
+    db.refresh(db_imagen)
+    return db_imagen
 
-        # Save file
-        with open(file_path, "wb") as buffer:
-            content = await file.read()
-            buffer.write(content)
 
-        # Create database record
-        db_imagen = models.Imagen(
-            id_producto=id_producto,
-            url_imagen=f"/{file_path}"  # Store relative path
-        )
-        db.add(db_imagen)
-        db.commit()
-        db.refresh(db_imagen)
-        
-        return db_imagen
-    except HTTPException:
-        raise
-    except Exception as e:
-        # Clean up if file was saved but DB failed
-        if 'file_path' in locals() and os.path.exists(file_path):
-            os.remove(file_path)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al crear imagen: {str(e)}"
-        )
-
-@router.get("/", response_model=List[Imagen])
+@router.get("/", response_model=List[ImagenOut])
 def obtener_imagenes(db: Session = Depends(get_db)):
     return db.query(models.Imagen).all()
 
-@router.get("/producto/{id_producto}", response_model=List[Imagen])
+@router.get("/producto/{id_producto}", response_model=List[ImagenOut])
 def obtener_imagenes_por_producto(id_producto: int, db: Session = Depends(get_db)):
     return db.query(models.Imagen).filter(
         models.Imagen.id_producto == id_producto
     ).all()
 
-@router.get("/{id}", response_model=Imagen)
+@router.get("/{id}", response_model=ImagenOut)
 def obtener_imagen(id: int, db: Session = Depends(get_db)):
-    imagen = db.query(models.Imagen).filter(models.Imagen.id == id).first()
-    if not imagen:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Imagen no encontrada"
-        )
-    return imagen
+    productos = db.query(models.Producto).all()
+    resultado = []
+
+    for p in productos:
+        # Convierte ORM a dict
+        p_dict = ProductoOut.from_orm(p).model_dump()
+        
+        # Convierte la relación de imagenes a lista de URLs
+        p_dict["imagenes"] = [img.url_imagen for img in p.imagenes] if p.imagenes else []
+
+        resultado.append(p_dict)
+
+    return resultado
+
 
 @router.get("/{id}/file")
 def servir_imagen(id: int, db: Session = Depends(get_db)):

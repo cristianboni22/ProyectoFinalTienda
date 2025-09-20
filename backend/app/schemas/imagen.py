@@ -9,8 +9,10 @@ class ImagenBase(BaseModel):
 class ImagenCreate(ImagenBase):
     pass
 
-class Imagen(ImagenBase):
+class ImagenOut(ImagenBase):
     id: int
+    id_producto: int
+    url_imagen: str
 
     class Config:
         from_attributes = True

@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, DECIMAL, TIMESTAMP, Boolean, ForeignKey
 from ..database import Base
+from sqlalchemy.orm import relationship
 
 class Producto(Base):
     __tablename__ = "producto"
@@ -14,3 +15,5 @@ class Producto(Base):
     marca = Column(String(100))
     fecha_agregado = Column(TIMESTAMP)
     activo = Column(Boolean, default=True)
+      
+    imagenes = relationship("Imagen", back_populates="producto")

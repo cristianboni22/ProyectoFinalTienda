@@ -1,74 +1,51 @@
+// src/pages/Home.jsx
 function Home() {
   return (
-    <>
+    <div>
       {/* Hero */}
-      <section className="hero d-flex align-items-center text-white">
+      <section
+        className="hero d-flex align-items-center text-white"
+        style={{
+          height: "90vh",
+          backgroundImage: "url('/src/assets/banner.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         <div className="container text-center">
-          <h1 className="display-3 fw-bold">Nueva Colección 2025</h1>
-          <p className="lead">Descubre lo último en estilo y rendimiento.</p>
+          <h1 className="display-3 fw-bold">Bienvenido a MiTienda</h1>
+          <p className="lead">La mejor ropa y calzado deportivo</p>
           <a href="/productos" className="btn btn-primary btn-lg mt-3">
-            Comprar Ahora
+            Ver productos
           </a>
         </div>
       </section>
 
-      {/* Sección de destacados */}
+      {/* Productos destacados */}
       <section className="container my-5">
-        <h2 className="text-center fw-bold mb-4">Productos Destacados</h2>
-        <div className="row g-4">
+        <h2 className="text-center mb-4">Productos destacados</h2>
+        <div className="row">
+          {/* Cards de productos de ejemplo */}
           <div className="col-md-4">
-            <div className="card shadow-sm border-0">
+            <div className="card">
               <img
-                src="https://source.unsplash.com/400x400/?shoes"
+                src="https://images.unsplash.com/photo-1606813907291-46c8e75f88bb"
                 className="card-img-top"
                 alt="Producto"
               />
-              <div className="card-body text-center">
-                <h5 className="card-title">Zapatillas Running</h5>
+              <div className="card-body">
+                <h5 className="card-title">Zapatillas Pro</h5>
                 <p className="card-text">€89.99</p>
-                <a href="/productos" className="btn btn-outline-primary">
-                  Ver más
+                <a href="/productos" className="btn btn-dark">
+                  Comprar
                 </a>
               </div>
             </div>
           </div>
-
-          <div className="col-md-4">
-            <div className="card shadow-sm border-0">
-              <img
-                src="https://source.unsplash.com/400x400/?sportswear"
-                className="card-img-top"
-                alt="Producto"
-              />
-              <div className="card-body text-center">
-                <h5 className="card-title">Sudadera Deportiva</h5>
-                <p className="card-text">€49.99</p>
-                <a href="/productos" className="btn btn-outline-primary">
-                  Ver más
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-md-4">
-            <div className="card shadow-sm border-0">
-              <img
-                src="https://source.unsplash.com/400x400/?fitness"
-                className="card-img-top"
-                alt="Producto"
-              />
-              <div className="card-body text-center">
-                <h5 className="card-title">Ropa Training</h5>
-                <p className="card-text">€39.99</p>
-                <a href="/productos" className="btn btn-outline-primary">
-                  Ver más
-                </a>
-              </div>
-            </div>
-          </div>
+          {/* Repite con más productos */}
         </div>
       </section>
-    </>
+    </div>
   );
 }
 

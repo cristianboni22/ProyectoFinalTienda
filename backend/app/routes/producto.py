@@ -29,7 +29,22 @@ def crear_producto(producto: ProductoCreate, db: Session = Depends(get_db),curre
 
 @router.get("/", response_model=list[ProductoOut])
 def obtener_productos(activo: bool = True, db: Session = Depends(get_db)):
-    return db.query(models.Producto).filter(models.Producto.activo == activo).all()
+    productos = db.query(models.Producto).all()
+    resultado = []
+    for p in productos:
+        producto_data = {
+            "id": p.id,
+            "nombre": p.nombre,
+            "descripcion": p.descripcion,
+            "precio": p.precio,
+            "stock": p.stock,
+            "id_categoria": p.id_categoria,
+            "id_subcategoria": p.id_subcategoria,
+            "imagenes": [img.url_imagen for img in p.imagenes] if p.imagenes else [],
+        }
+        resultado.append(producto_data)
+
+    return resultado
 
 @router.get("/{id}", response_model=ProductoOut)
 def obtener_producto(id: int, db: Session = Depends(get_db)):

@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
-import ProductDetail from "./pages/ProductDetail";
+import Productos from "./pages/Productos";
+import Nosotros from "./pages/Nosotros";
+import Contacto from "./pages/Contacto";
 import Navbar from "./components/Navbar";
 
 function App() {
@@ -12,7 +14,9 @@ function App() {
         <main className="flex-grow-1">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/producto/:id" element={<ProductDetail />} />
+            <Route path="/productos" element={<Productos  />} />
+            <Route path="/nosotros" element={<Nosotros />} />
+            <Route path="/contacto" element={<Contacto />} />
           </Routes>
         </main>
         <Footer />
