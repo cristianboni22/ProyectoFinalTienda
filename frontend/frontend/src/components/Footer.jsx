@@ -11,7 +11,7 @@ function Footer() {
         <ul className="list-unstyled d-flex gap-4 mb-3 mb-md-0">
           <li><a href="/" className="text-white text-decoration-none">Inicio</a></li>
           <li><a href="/productos" className="text-white text-decoration-none">Productos</a></li>
-          <li><a href="/about" className="text-white text-decoration-none">Nosotros</a></li>
+          <li><a href="/nosotros" className="text-white text-decoration-none">Nosotros</a></li>
           <li><a href="/contacto" className="text-white text-decoration-none">Contacto</a></li>
         </ul>
 

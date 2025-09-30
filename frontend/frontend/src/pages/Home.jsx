@@ -50,7 +50,7 @@ function Home() {
                 <div className="card h-100 shadow-sm">
                   {p.imagenes?.length > 0 ? (
                     <img
-                      src={p.imagenes[0].url || p.imagenes[0]}
+                      src={p.imagenes[0].url_imagen}
                       className="card-img-top"
                       alt={p.nombre}
                       style={{ height: "200px", objectFit: "contain" }}

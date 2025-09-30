@@ -1,32 +1,47 @@
-import { createContext, useState } from 'react';
+// src/context/CartContext.jsx
+import { createContext, useState } from "react";
 
 export const CartContext = createContext();
 
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
 
-  const addToCart = (product) => {
+  const addToCart = (product, variant, quantity = 1) => {
     setCart(prev => {
-      const found = prev.find(item => item.id === product.id);
-      if (found) {
-        return prev.map(item =>
-          item.id === product.id ? { ...item, cantidad: item.cantidad + 1 } : item
-        );
+      const existingIndex = prev.findIndex(
+        item => item.product.id === product.id && item.variant?.id === variant?.id
+      );
+      if (existingIndex >= 0) {
+        const newCart = [...prev];
+        newCart[existingIndex].cantidad += quantity;
+        return newCart;
       }
-      return [...prev, { ...product, cantidad: 1 }];
+      return [...prev, { product, variant, cantidad: quantity }];
     });
   };
 
-  const removeFromCart = (id) => setCart(prev => prev.filter(item => item.id !== id));
-
-  const updateQuantity = (id, cantidad) => {
+  const removeFromCart = (productId, variantId) => {
     setCart(prev =>
-      prev.map(item => item.id === id ? { ...item, cantidad } : item)
+      prev.filter(
+        item => !(item.product.id === productId && item.variant?.id === variantId)
+      )
+    );
+  };
+
+  const updateQuantity = (productId, variantId, cantidad) => {
+    setCart(prev =>
+      prev.map(item =>
+        item.product.id === productId && item.variant?.id === variantId
+          ? { ...item, cantidad }
+          : item
+      )
     );
   };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity }}>
+    <CartContext.Provider
+      value={{ cart, addToCart, removeFromCart, updateQuantity }}
+    >
       {children}
     </CartContext.Provider>
   );

@@ -32,7 +32,7 @@ function Navbar() {
                 <Link className="nav-link fw-semibold" to="/productos">Productos</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link fw-semibold" to="/about">Nosotros</Link>
+                <Link className="nav-link fw-semibold" to="/nosotros">Nosotros</Link>
               </li>
               <li className="nav-item">
                 <Link className="btn btn-outline-light px-3 py-2" to="/carrito">
