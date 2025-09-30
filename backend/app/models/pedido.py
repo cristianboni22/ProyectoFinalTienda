@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, DECIMAL, String, TIMESTAMP, Text, ForeignKey
 from ..database import Base
+from sqlalchemy.orm import relationship
 
 class Pedido(Base):
     __tablename__ = "pedido"

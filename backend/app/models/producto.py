@@ -16,4 +16,5 @@ class Producto(Base):
     fecha_agregado = Column(TIMESTAMP)
     activo = Column(Boolean, default=True)
       
+    variantes = relationship("Variante", back_populates="producto")
     imagenes = relationship("Imagen", back_populates="producto")

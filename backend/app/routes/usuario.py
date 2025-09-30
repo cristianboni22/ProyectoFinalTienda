@@ -9,25 +9,6 @@ from app.auth import get_current_user
 
 router = APIRouter()
 
-@router.post("/", response_model=UsuarioOut, status_code=status.HTTP_201_CREATED)
-def crear_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db),current_user: str = Depends(get_current_user)):
-    try:
-        # Añade fecha_registro automáticamente
-        db_usuario = models.Usuario(
-            **usuario.dict(exclude_unset=True),
-            fecha_registro=datetime.utcnow()
-        )
-        db.add(db_usuario)
-        db.commit()
-        db.refresh(db_usuario)
-        return db_usuario
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al crear usuario: {str(e)}"
-        )
-
 @router.get("/", response_model=list[UsuarioOut])
 def obtener_usuarios(db: Session = Depends(get_db)):
     return db.query(models.Usuario).all()

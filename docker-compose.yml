@@ -28,7 +28,7 @@ services:
     volumes:
       - ./backend:/app
     environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/tienda
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/tienda
     depends_on:
       - db
     networks:

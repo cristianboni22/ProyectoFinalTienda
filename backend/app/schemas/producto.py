@@ -1,6 +1,8 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional, List
+from .variante import VarianteOut
+from .imagen import ImagenOut
 
 class ProductoBase(BaseModel):
     nombre: str = Field(..., max_length=100)
@@ -18,11 +20,15 @@ class ProductoCreate(ProductoBase):
 class ProductoOut(ProductoBase):
     id: int
     nombre: str
-    descripcion: str
-    precio: float
+    descripcion: Optional[str]
+    precio: float   # hacemos conversión en el endpoint
     stock: int
-    imagenes: list[str] = []  
-
-    model_config = {
-        "from_attributes": True
-    }
+    id_categoria: int
+    id_subcategoria: int
+    marca: Optional[str]
+    activo: Optional[bool]
+    variantes: List[VarianteOut] = []
+    imagenes: List[ImagenOut] = [] 
+    
+    class Config:
+        orm_mode = True

@@ -9,6 +9,5 @@ from .item_carrito import ItemCarrito
 from .pedido import Pedido
 from .detalle_pedido import DetallePedido
 from .pago import Pago
-from .cupon import Cupon
 
 from app.database import Base

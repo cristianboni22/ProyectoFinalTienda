@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, TIMESTAMP
 from ..database import Base
+from sqlalchemy.orm import relationship
 
 class Usuario(Base):
     __tablename__ = "usuario"
@@ -13,3 +14,5 @@ class Usuario(Base):
     telefono = Column(String(20))
     fecha_registro = Column(TIMESTAMP)
     rol = Column(String(20), default="cliente")
+
+    

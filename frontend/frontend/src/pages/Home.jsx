@@ -1,5 +1,22 @@
 // src/pages/Home.jsx
+import { useEffect, useState } from "react";
+import { getProductos } from "../services/productos";
+
 function Home() {
+  const [productos, setProductos] = useState([]);
+
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        const data = await getProductos({ limit: 3 }); // traemos solo 3 destacados
+        setProductos(data);
+      } catch (error) {
+        console.error("Error cargando productos:", error);
+      }
+    };
+    fetchProductos();
+  }, []);
+
   return (
     <div>
       {/* Hero */}
@@ -25,24 +42,38 @@ function Home() {
       <section className="container my-5">
         <h2 className="text-center mb-4">Productos destacados</h2>
         <div className="row">
-          {/* Cards de productos de ejemplo */}
-          <div className="col-md-4">
-            <div className="card">
-              <img
-                src="https://images.unsplash.com/photo-1606813907291-46c8e75f88bb"
-                className="card-img-top"
-                alt="Producto"
-              />
-              <div className="card-body">
-                <h5 className="card-title">Zapatillas Pro</h5>
-                <p className="card-text">€89.99</p>
-                <a href="/productos" className="btn btn-dark">
-                  Comprar
-                </a>
+          {productos.length === 0 ? (
+            <p className="text-center text-muted">No hay productos disponibles</p>
+          ) : (
+            productos.map((p) => (
+              <div key={p.id} className="col-md-4">
+                <div className="card h-100 shadow-sm">
+                  {p.imagenes?.length > 0 ? (
+                    <img
+                      src={p.imagenes[0].url || p.imagenes[0]}
+                      className="card-img-top"
+                      alt={p.nombre}
+                      style={{ height: "200px", objectFit: "contain" }}
+                    />
+                  ) : (
+                    <div
+                      className="d-flex align-items-center justify-content-center bg-light"
+                      style={{ height: "200px" }}
+                    >
+                      <span className="text-muted">Sin imagen</span>
+                    </div>
+                  )}
+                  <div className="card-body">
+                    <h5 className="card-title">{p.nombre}</h5>
+                    <p className="card-text">€{p.precio}</p>
+                    <a href={`/producto/${p.id}`} className="btn btn-dark">
+                      Comprar
+                    </a>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          {/* Repite con más productos */}
+            ))
+          )}
         </div>
       </section>
     </div>

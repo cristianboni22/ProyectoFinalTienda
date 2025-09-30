@@ -41,51 +41,6 @@ async def crear_imagen(id_producto: int, file: UploadFile = File(...), db: Sessi
     return db_imagen
 
 
-@router.get("/", response_model=List[ImagenOut])
-def obtener_imagenes(db: Session = Depends(get_db)):
-    return db.query(models.Imagen).all()
-
-@router.get("/producto/{id_producto}", response_model=List[ImagenOut])
-def obtener_imagenes_por_producto(id_producto: int, db: Session = Depends(get_db)):
-    return db.query(models.Imagen).filter(
-        models.Imagen.id_producto == id_producto
-    ).all()
-
-@router.get("/{id}", response_model=ImagenOut)
-def obtener_imagen(id: int, db: Session = Depends(get_db)):
-    productos = db.query(models.Producto).all()
-    resultado = []
-
-    for p in productos:
-        # Convierte ORM a dict
-        p_dict = ProductoOut.from_orm(p).model_dump()
-        
-        # Convierte la relación de imagenes a lista de URLs
-        p_dict["imagenes"] = [img.url_imagen for img in p.imagenes] if p.imagenes else []
-
-        resultado.append(p_dict)
-
-    return resultado
-
-
-@router.get("/{id}/file")
-def servir_imagen(id: int, db: Session = Depends(get_db)):
-    imagen = db.query(models.Imagen).filter(models.Imagen.id == id).first()
-    if not imagen:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Imagen no encontrada"
-        )
-    
-    file_path = imagen.url_imagen.lstrip('/')
-    if not os.path.exists(file_path):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Archivo de imagen no encontrado"
-        )
-    
-    return FileResponse(file_path)
-
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_imagen(id: int, db: Session = Depends(get_db)):
     db_imagen = db.query(models.Imagen).filter(models.Imagen.id == id).first()
