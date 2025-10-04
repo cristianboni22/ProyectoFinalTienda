@@ -8,7 +8,8 @@ import Cart from './pages/Cart';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
-import Checkout from './pages/Checkout';
+import Checkout from "./pages/Checkout";
+import OrderConfirmation from "./pages/OrderConfirmation";
 import AdminPanel from './pages/AdminPanel';
 import Nosotros from './pages/Nosotros';
 
@@ -18,7 +19,7 @@ function App() {
       {/* Contenedor principal que ocupa toda la altura */}
       <div className="d-flex flex-column min-vh-100">
         <Navbar />
-        
+
         {/* El contenido se expande y empuja el footer */}
         <main className="flex-fill">
           <div className="container mt-4 mb-5">
@@ -32,6 +33,7 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/perfil" element={<Profile />} />
               <Route path="/checkout" element={<Checkout />} />
+              <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
               <Route path="/admin" element={<AdminPanel />} />
             </Routes>
           </div>

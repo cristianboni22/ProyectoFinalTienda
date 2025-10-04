@@ -23,15 +23,8 @@ def crear_pedido(
         estado=pedido.estado or "pendiente",
         total=pedido.total,
         direccion_envio=pedido.direccion_envio,
-        id_cupon=pedido.id_cupon
     )
     db.add(db_pedido)
-
-    # Manejar cupón si existe
-    if pedido.id_cupon:
-        cupon = db.query(models.Cupon).filter(models.Cupon.id == pedido.id_cupon).first()
-        if cupon:
-            cupon.veces_usado += 1
 
     db.commit()
     db.refresh(db_pedido)

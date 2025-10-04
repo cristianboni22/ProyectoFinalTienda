@@ -10,7 +10,7 @@ class UsuarioBase(BaseModel):
     telefono: Optional[str] = None
 
 class UsuarioCreate(UsuarioBase):
-    contrasena: str = Field(..., alias="contraseña")  # Permite ambos nombres
+    contrasena: str = Field(...)  # Permite ambos nombres
     rol: Optional[str] = "cliente"
 
     class Config:

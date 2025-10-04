@@ -1,8 +1,16 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <>
@@ -39,11 +47,32 @@ function Navbar() {
                   🛒 Carrito
                 </Link>
               </li>
-              <li className="nav-item">
-                <Link className="btn btn-primary px-3 py-2" to="/login">
-                  Iniciar Sesión
-                </Link>
-              </li>
+
+              {/* 🔑 Aquí el condicional según si hay usuario */}
+              {user ? (
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link fw-semibold text-light" to="/perfil">
+                      👤 {user.nombre}
+                    </Link>
+                  </li>
+
+                  <li className="nav-item">
+                    <button
+                      className="btn btn-danger px-3 py-2"
+                      onClick={handleLogout}
+                    >
+                      Cerrar Sesión
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <li className="nav-item">
+                  <Link className="btn btn-primary px-3 py-2" to="/login">
+                    Iniciar Sesión
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
         </div>

@@ -49,6 +49,7 @@ function Products() {
               <h5 className="card-title">Filtrar</h5>
 
               <ul className="list-group mb-3">
+                
                 <li
                   className={`list-group-item ${selectedCategory === "" ? "active" : ""}`}
                   onClick={() => applyFilters("", "")}

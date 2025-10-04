@@ -3,11 +3,9 @@ from typing import Optional
 from datetime import datetime
 
 class PedidoBase(BaseModel):
-    id_usuario: int
     estado: Optional[str] = "pendiente"
     total: Optional[float]
-    direccion_envio: Optional[str]
-    id_cupon: Optional[int]
+    direccion_envio: str               
 
 class PedidoCreate(PedidoBase):
     pass

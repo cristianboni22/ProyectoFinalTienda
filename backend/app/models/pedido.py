@@ -11,4 +11,3 @@ class Pedido(Base):
     estado = Column(String(20), default="pendiente")
     total = Column(DECIMAL(10, 2))
     direccion_envio = Column(Text)
-    id_cupon = Column(Integer, ForeignKey("cupon.id"))

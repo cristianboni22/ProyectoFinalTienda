@@ -1,61 +1,61 @@
-import React from "react";
+import React, { useState, useContext } from "react";
+import { CartContext } from "../context/CartContext";
 
 function ProductCard({ product }) {
+  const { addToCart } = useContext(CartContext);
+  const [cantidad, setCantidad] = useState(1);
+  const [selectedVariant, setSelectedVariant] = useState(product.variantes?.[0] || null);
+
+  const handleAddToCart = () => {
+    addToCart(product, selectedVariant, cantidad);
+    setCantidad(1); // reset input
+  };
+
   return (
     <div className="card shadow-sm h-100">
-      {product.imagenes && product.imagenes.length > 0 ? (
-        <div id={`carousel-${product.id}`} className="carousel slide" data-bs-ride="carousel">
-          <div className="carousel-inner" style={{ height: "200px", backgroundColor: "#f8f9fa" }}>
-            {product.imagenes.map((img, idx) => (
-              <div key={idx} className={`carousel-item ${idx === 0 ? "active" : ""}`}>
-                <img
-                  src={img.url_imagen}
-                  className="d-block w-100"
-                  alt={`${product.nombre} ${idx + 1}`}
-                  style={{ height: "200px", objectFit: "contain" }}
-                />
-              </div>
-            ))}
-          </div>
-          {product.imagenes.length > 1 && (
-            <>
-              <button
-                className="carousel-control-prev"
-                type="button"
-                data-bs-target={`#carousel-${product.id}`}
-                data-bs-slide="prev"
-              >
-                <span className="carousel-control-prev-icon" style={{ filter: "invert(1)" }}></span>
-                <span className="visually-hidden">Anterior</span>
-              </button>
-              <button
-                className="carousel-control-next"
-                type="button"
-                data-bs-target={`#carousel-${product.id}`}
-                data-bs-slide="next"
-              >
-                <span className="carousel-control-next-icon" style={{ filter: "invert(1)" }}></span>
-                <span className="visually-hidden">Siguiente</span>
-              </button>
-            </>
-          )}
-        </div>
-      ) : (
-        <div className="d-flex align-items-center justify-content-center bg-light" style={{ height: "200px" }}>
-          <span className="text-muted">Sin imagen</span>
-        </div>
-      )}
-
+      <img
+        src={product.imagenes?.[0]?.url_imagen || '/placeholder.png'}
+        alt={product.nombre}
+        className="card-img-top"
+        style={{ height: '200px', objectFit: 'contain' }}
+      />
       <div className="card-body d-flex flex-column">
         <h5 className="card-title">{product.nombre}</h5>
-        <p className="card-text text-muted flex-grow-1">{product.descripcion}</p>
-        <div className="d-flex justify-content-between align-items-center mb-2">
-          <span className="fw-bold text-success">💲 {product.precio}</span>
-          <small className="text-muted">Stock: {product.stock}</small>
+        <p className="card-text flex-grow-1 text-muted">{product.descripcion}</p>
+
+        {product.variantes?.length > 0 && (
+          <select
+            className="form-select mb-2"
+            value={selectedVariant?.id || ''}
+            onChange={e => {
+              const variant = product.variantes.find(v => v.id === parseInt(e.target.value));
+              setSelectedVariant(variant);
+            }}
+          >
+            {product.variantes.map(v => (
+              <option key={v.id} value={v.id}>
+                Talla: {v.talla}, Color: {v.color} (Stock: {v.stock_individual})
+              </option>
+            ))}
+          </select>
+        )}
+
+        <div className="d-flex gap-2 align-items-center mb-2">
+          <input
+            type="number"
+            min="1"
+            max={selectedVariant?.stock_individual || product.stock}
+            value={cantidad}
+            className="form-control"
+            style={{ width: '70px' }}
+            onChange={e => setCantidad(parseInt(e.target.value))}
+          />
+          <button className="btn btn-dark flex-grow-1" onClick={handleAddToCart}>
+            Añadir al carrito
+          </button>
         </div>
-        <a href={`/producto/${product.id}`} className="btn btn-dark w-100">
-          Comprar
-        </a>
+
+        <span className="fw-bold text-success">€{product.precio}</span>
       </div>
     </div>
   );

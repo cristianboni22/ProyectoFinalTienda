@@ -9,6 +9,12 @@ from app.auth import get_current_user
 
 router = APIRouter()
 
+
+@router.get("/me", response_model=UsuarioOut)
+def leer_usuario_actual(current_user: models.Usuario = Depends(get_current_user)):
+    return current_user
+
+
 @router.get("/", response_model=list[UsuarioOut])
 def obtener_usuarios(db: Session = Depends(get_db)):
     return db.query(models.Usuario).all()
@@ -22,6 +28,7 @@ def obtener_usuario(id: int, db: Session = Depends(get_db)):
             detail="Usuario no encontrado"
         )
     return usuario
+
 
 @router.put("/{id}", response_model=UsuarioOut)
 def actualizar_usuario(id: int, usuario: UsuarioCreate, db: Session = Depends(get_db),current_user: str = Depends(get_current_user)):

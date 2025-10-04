@@ -9,68 +9,56 @@ from app.auth import get_current_user
 
 router = APIRouter()
 
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app import models
+from app.schemas.detalle_pedido import DetallePedidoCreate, DetallePedido
+from app.auth import get_current_user
+
+router = APIRouter()
+
 @router.post("/", response_model=DetallePedido, status_code=status.HTTP_201_CREATED)
-def crear_detalle_pedido(detalle: DetallePedidoCreate, db: Session = Depends(get_db),current_user: str = Depends(get_current_user)):
+def crear_detalle_pedido(
+    detalle: DetallePedidoCreate,
+    db: Session = Depends(get_db),
+    current_user: models.Usuario = Depends(get_current_user)
+):
     try:
-        # Validate order exists
-        pedido = db.query(models.Pedido).filter(models.Pedido.id == detalle.id_pedido).first()
-        if not pedido:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Pedido no encontrado"
-            )
+        # Verificar que el pedido existe y pertenece al usuario actual
+        pedido_db = db.query(models.Pedido).filter(models.Pedido.id == detalle.id_pedido,
+                                                   models.Pedido.id_usuario == current_user.id).first()
+        if not pedido_db:
+            raise HTTPException(status_code=400, detail="Pedido no existe o no te pertenece")
 
-        # Validate product exists
-        producto = db.query(models.Producto).filter(models.Producto.id == detalle.id_producto).first()
-        if not producto:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Producto no encontrado"
-            )
+        # Verificar que el producto existe
+        producto_db = db.query(models.Producto).filter(models.Producto.id == detalle.id_producto).first()
+        if not producto_db:
+            raise HTTPException(status_code=400, detail="Producto no existe")
 
-        # Validate variant exists if provided
+        # Verificar variante si se envía
+        variante_db = None
         if detalle.id_variante:
-            variante = db.query(models.VarianteProducto).filter(
-                models.VarianteProducto.id == detalle.id_variante,
-                models.VarianteProducto.id_producto == detalle.id_producto
-            ).first()
-            if not variante:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="Variante no encontrada para este producto"
-                )
+            variante_db = db.query(models.Variante).filter(models.Variante.id == detalle.id_variante).first()
+            if not variante_db:
+                raise HTTPException(status_code=400, detail="Variante no existe")
 
-        # Validate quantity
-        if detalle.cantidad <= 0:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="La cantidad debe ser mayor que 0"
-            )
-
-        # Validate price
-        if detalle.precio_unitario <= 0:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="El precio unitario debe ser mayor que 0"
-            )
-
-        db_detalle = models.DetallePedido(**detalle.dict())
+        # Crear detalle de pedido
+        db_detalle = models.DetallePedido(
+            id_pedido=detalle.id_pedido,
+            id_producto=detalle.id_producto,
+            id_variante=detalle.id_variante if detalle.id_variante else None,
+            cantidad=detalle.cantidad,
+            precio_unitario=detalle.precio_unitario
+        )
         db.add(db_detalle)
         db.commit()
         db.refresh(db_detalle)
-        
-        # Update order total (assuming you have this field)
-        _actualizar_total_pedido(detalle.id_pedido, db)
-        
         return db_detalle
-    except HTTPException:
-        raise
+
     except Exception as e:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error al crear detalle de pedido: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Error al crear detalle de pedido: {str(e)}")
 
 @router.get("/", response_model=list[DetallePedido])
 def obtener_detalles_pedido(db: Session = Depends(get_db)):
