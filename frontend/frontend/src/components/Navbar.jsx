@@ -50,29 +50,38 @@ function Navbar() {
 
               {/* 🔑 Aquí el condicional según si hay usuario */}
               {user ? (
-                <>
-                  <li className="nav-item">
-                    <Link className="nav-link fw-semibold text-light" to="/perfil">
-                      👤 {user.nombre}
-                    </Link>
-                  </li>
+  <>
+    {user.rol === "admin" && (
+      <li className="nav-item">
+        <Link className="nav-link fw-semibold text-warning" to="/admin">
+          ⚙️ Panel Admin
+        </Link>
+      </li>
+    )}
 
-                  <li className="nav-item">
-                    <button
-                      className="btn btn-danger px-3 py-2"
-                      onClick={handleLogout}
-                    >
-                      Cerrar Sesión
-                    </button>
-                  </li>
-                </>
-              ) : (
-                <li className="nav-item">
-                  <Link className="btn btn-primary px-3 py-2" to="/login">
-                    Iniciar Sesión
-                  </Link>
-                </li>
-              )}
+    <li className="nav-item">
+      <Link className="nav-link fw-semibold text-light" to="/perfil">
+        👤 {user.nombre}
+      </Link>
+    </li>
+
+    <li className="nav-item">
+      <button
+        className="btn btn-danger px-3 py-2"
+        onClick={handleLogout}
+      >
+        Cerrar Sesión
+      </button>
+    </li>
+  </>
+) : (
+  <li className="nav-item">
+    <Link className="btn btn-primary px-3 py-2" to="/login">
+      Iniciar Sesión
+    </Link>
+  </li>
+)}
+
             </ul>
           </div>
         </div>

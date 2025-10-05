@@ -28,7 +28,7 @@ app.include_router(item_carrito.router, prefix="/item_carrito", tags=["Item_Carr
 app.include_router(pago.router, prefix="/pago", tags=["Pago"])
 app.include_router(pedido.router, prefix="/pedido", tags=["Pedido"])
 app.include_router(producto.router, prefix="/producto", tags=["Producto"])
-app.include_router(subcategoria.router, prefix="/subacategoria", tags=["SubCategoria"])
+app.include_router(subcategoria.router, prefix="/subcategoria", tags=["SubCategoria"])
 app.include_router(usuario.router, prefix="/usuario", tags=["Usuario"])
 app.include_router(variante.router, prefix="/variante", tags=["Variante"])
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app import models
 from app.schemas.variante import VarianteCreate, VarianteOut
-from app.auth import get_current_user
+from app.auth import get_current_user, admin_required
 
 router = APIRouter()
 
@@ -11,7 +11,8 @@ router = APIRouter()
 def crear_variante(
     variante: VarianteCreate,
     db: Session = Depends(get_db),
-    current_user: str = Depends(get_current_user)
+    current_user: str = Depends(get_current_user),
+    admin=Depends(admin_required) 
 ):
     # Verificar si el producto existe
     producto = db.query(models.Producto).filter(models.Producto.id == variante.id_producto).first()
@@ -43,7 +44,8 @@ def actualizar_variante(
     id: int,
     variante: VarianteCreate,
     db: Session = Depends(get_db),
-    current_user: str = Depends(get_current_user)
+    current_user: str = Depends(get_current_user),
+    admin=Depends(admin_required) 
 ):
     db_variante = db.query(models.Variante).filter(models.Variante.id == id).first()
     if not db_variante:
@@ -80,7 +82,8 @@ def actualizar_variante(
 def eliminar_variante(
     id: int,
     db: Session = Depends(get_db),
-    current_user: str = Depends(get_current_user)
+    current_user: str = Depends(get_current_user),
+    admin=Depends(admin_required) 
 ):
     db_variante = db.query(models.Variante).filter(models.Variante.id == id).first()
     if not db_variante:

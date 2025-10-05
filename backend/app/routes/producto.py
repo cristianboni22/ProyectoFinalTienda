@@ -5,7 +5,7 @@ from datetime import datetime
 from app.database import get_db
 from app import models
 from app.schemas.producto import ProductoCreate, ProductoOut
-from app.auth import get_current_user
+from app.auth import get_current_user,admin_required
 
 router = APIRouter()
 
@@ -13,7 +13,8 @@ router = APIRouter()
 def crear_producto(
     producto: ProductoCreate, 
     db: Session = Depends(get_db),
-    current_user: str = Depends(get_current_user)
+    current_user: str = Depends(get_current_user),
+    admin=Depends(admin_required) 
 ):
     try:
         db_producto = models.Producto(
@@ -86,7 +87,8 @@ def actualizar_producto(
     id: int, 
     producto: ProductoCreate, 
     db: Session = Depends(get_db),
-    current_user: str = Depends(get_current_user)
+    current_user: str = Depends(get_current_user),
+    admin=Depends(admin_required) 
 ):
     db_producto = db.query(models.Producto).filter(models.Producto.id == id).first()
     if not db_producto:
@@ -108,7 +110,8 @@ def actualizar_producto(
 def eliminar_producto(
     id: int, 
     db: Session = Depends(get_db),
-    current_user: str = Depends(get_current_user)
+    current_user: str = Depends(get_current_user),
+    admin=Depends(admin_required) 
 ):
     db_producto = db.query(models.Producto).filter(models.Producto.id == id).first()
     if not db_producto:

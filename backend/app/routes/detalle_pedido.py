@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app import models
 from app.schemas.detalle_pedido import DetallePedidoCreate, DetallePedido
-from app.auth import get_current_user
+from app.auth import get_current_user,admin_required
 
 router = APIRouter()
 
@@ -81,7 +81,7 @@ def obtener_detalle_pedido(id: int, db: Session = Depends(get_db)):
     return detalle
 
 @router.put("/{id}", response_model=DetallePedido)
-def actualizar_detalle_pedido(id: int, detalle: DetallePedidoCreate, db: Session = Depends(get_db),current_user: str = Depends(get_current_user)):
+def actualizar_detalle_pedido(id: int, detalle: DetallePedidoCreate, db: Session = Depends(get_db),current_user: str = Depends(get_current_user),admin=Depends(admin_required) ):
     db_detalle = db.query(models.DetallePedido).filter(models.DetallePedido.id == id).first()
     if not db_detalle:
         raise HTTPException(
@@ -159,7 +159,7 @@ def actualizar_detalle_pedido(id: int, detalle: DetallePedidoCreate, db: Session
         )
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_detalle_pedido(id: int, db: Session = Depends(get_db),current_user: str = Depends(get_current_user)):
+def eliminar_detalle_pedido(id: int, db: Session = Depends(get_db),current_user: str = Depends(get_current_user),admin=Depends(admin_required) ):
     db_detalle = db.query(models.DetallePedido).filter(models.DetallePedido.id == id).first()
     if not db_detalle:
         raise HTTPException(
@@ -183,7 +183,7 @@ def eliminar_detalle_pedido(id: int, db: Session = Depends(get_db),current_user:
     
     return None
 
-def _actualizar_total_pedido(self, pedido_id: int, db: Session):
+def _actualizar_total_pedido(self, pedido_id: int, db: Session,admin=Depends(admin_required) ):
     """Helper method to update order total"""
     total = db.query(
         func.sum(models.DetallePedido.cantidad * models.DetallePedido.precio_unitario)

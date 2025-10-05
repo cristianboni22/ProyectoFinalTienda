@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app import models
 from app.schemas.usuario import UsuarioCreate, UsuarioOut
-from app.auth import get_current_user
+from app.auth import get_current_user, admin_required
 
 
 router = APIRouter()
@@ -31,7 +31,7 @@ def obtener_usuario(id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/{id}", response_model=UsuarioOut)
-def actualizar_usuario(id: int, usuario: UsuarioCreate, db: Session = Depends(get_db),current_user: str = Depends(get_current_user)):
+def actualizar_usuario(id: int, usuario: UsuarioCreate, db: Session = Depends(get_db),current_user: str = Depends(get_current_user),admin=Depends(admin_required) ):
     db_usuario = db.query(models.Usuario).filter(models.Usuario.id == id).first()
     if not db_usuario:
         raise HTTPException(
@@ -54,7 +54,7 @@ def actualizar_usuario(id: int, usuario: UsuarioCreate, db: Session = Depends(ge
         )
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_usuario(id: int, db: Session = Depends(get_db),current_user: str = Depends(get_current_user)):
+def eliminar_usuario(id: int, db: Session = Depends(get_db),current_user: str = Depends(get_current_user),admin=Depends(admin_required) ):
     db_usuario = db.query(models.Usuario).filter(models.Usuario.id == id).first()
     if not db_usuario:
         raise HTTPException(

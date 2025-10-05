@@ -8,6 +8,7 @@ import os
 from typing import List
 from datetime import datetime
 from fastapi.responses import FileResponse
+from app.auth import get_current_user,admin_required
 
 router = APIRouter()
 
@@ -17,7 +18,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
 @router.post("/", response_model=ImagenOut, status_code=status.HTTP_201_CREATED)
-async def crear_imagen(id_producto: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def crear_imagen(id_producto: int, file: UploadFile = File(...), db: Session = Depends(get_db),admin=Depends(admin_required) ):
     producto = db.query(models.Producto).filter(models.Producto.id == id_producto).first()
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
@@ -42,7 +43,7 @@ async def crear_imagen(id_producto: int, file: UploadFile = File(...), db: Sessi
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_imagen(id: int, db: Session = Depends(get_db)):
+def eliminar_imagen(id: int, db: Session = Depends(get_db),admin=Depends(admin_required) ):
     db_imagen = db.query(models.Imagen).filter(models.Imagen.id == id).first()
     if not db_imagen:
         raise HTTPException(

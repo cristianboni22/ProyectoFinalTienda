@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app import models
 from app.schemas.item_carrito import ItemCarritoCreate, ItemCarrito
-from app.auth import get_current_user
+from app.auth import get_current_user,admin_required
 
 
 router = APIRouter()
@@ -123,7 +123,7 @@ def obtener_item_carrito(id: int, db: Session = Depends(get_db)):
     return item
 
 @router.put("/{id}", response_model=ItemCarrito)
-def actualizar_item_carrito(id: int, item: ItemCarritoCreate, db: Session = Depends(get_db),current_user: str = Depends(get_current_user)):
+def actualizar_item_carrito(id: int, item: ItemCarritoCreate, db: Session = Depends(get_db),current_user: str = Depends(get_current_user),admin=Depends(admin_required) ):
     db_item = db.query(models.ItemCarrito).filter(models.ItemCarrito.id == id).first()
     if not db_item:
         raise HTTPException(
@@ -194,7 +194,7 @@ def actualizar_item_carrito(id: int, item: ItemCarritoCreate, db: Session = Depe
         )
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_item_carrito(id: int, db: Session = Depends(get_db),current_user: str = Depends(get_current_user)):
+def eliminar_item_carrito(id: int, db: Session = Depends(get_db),current_user: str = Depends(get_current_user),admin=Depends(admin_required) ):
     db_item = db.query(models.ItemCarrito).filter(models.ItemCarrito.id == id).first()
     if not db_item:
         raise HTTPException(

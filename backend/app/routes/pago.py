@@ -5,7 +5,7 @@ from app import models
 from app.schemas.pago import PagoCreate, Pago
 from datetime import datetime
 from typing import Optional
-from app.auth import get_current_user
+from app.auth import get_current_user,admin_required
 
 
 router = APIRouter()
@@ -15,7 +15,7 @@ VALID_PAYMENT_METHODS = ["tarjeta", "transferencia", "efectivo", "paypal"]
 VALID_PAYMENT_STATUSES = ["pendiente", "completado", "fallido", "reembolsado"]
 
 @router.post("/", response_model=Pago, status_code=status.HTTP_201_CREATED)
-def crear_pago(pago: PagoCreate, db: Session = Depends(get_db),current_user: str = Depends(get_current_user)):
+def crear_pago(pago: PagoCreate, db: Session = Depends(get_db),current_user: str = Depends(get_current_user),admin=Depends(admin_required) ):
     try:
         # Validate order exists
         pedido = db.query(models.Pedido).filter(models.Pedido.id == pago.id_pedido).first()
@@ -126,7 +126,8 @@ def actualizar_pago(
     estado_pago: Optional[str] = None,
     referencia_pago: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: str = Depends(get_current_user)
+    current_user: str = Depends(get_current_user),
+    admin=Depends(admin_required) 
 ):
     db_pago = db.query(models.Pago).filter(models.Pago.id == id).first()
     if not db_pago:
@@ -171,7 +172,7 @@ def actualizar_pago(
         )
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def eliminar_pago(id: int, db: Session = Depends(get_db),current_user: str = Depends(get_current_user)):
+def eliminar_pago(id: int, db: Session = Depends(get_db),current_user: str = Depends(get_current_user),admin=Depends(admin_required) ):
     db_pago = db.query(models.Pago).filter(models.Pago.id == id).first()
     if not db_pago:
         raise HTTPException(

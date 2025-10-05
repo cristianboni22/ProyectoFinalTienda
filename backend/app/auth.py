@@ -7,6 +7,7 @@ from passlib.context import CryptContext
 from app.database import get_db
 from app import models, schemas  # <-- Aquí tu UsuarioCreate
 from app.schemas.usuario import UsuarioCreate, UsuarioOut
+from app.models import Usuario
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
@@ -32,6 +33,15 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         return user
     except jwt.JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido")
+    
+
+def admin_required(current_user = Depends(get_current_user)):
+    if current_user.rol != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes permisos de administrador"
+        )
+    return current_user
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):

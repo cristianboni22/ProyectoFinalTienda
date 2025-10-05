@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app import models
 from app.schemas.pedido import PedidoCreate, Pedido
-from app.auth import get_current_user
+from app.auth import get_current_user,admin_required
 from typing import Optional
 
 router = APIRouter()
@@ -61,7 +61,8 @@ def actualizar_pedido(
     estado: Optional[str] = None,
     direccion_envio: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: models.Usuario = Depends(get_current_user)
+    current_user: models.Usuario = Depends(get_current_user),
+    admin=Depends(admin_required) 
 ):
     pedido = db.query(models.Pedido).filter(models.Pedido.id == id).first()
     if not pedido or pedido.id_usuario != current_user.id:
@@ -80,7 +81,8 @@ def actualizar_pedido(
 def cancelar_pedido(
     id: int,
     db: Session = Depends(get_db),
-    current_user: models.Usuario = Depends(get_current_user)
+    current_user: models.Usuario = Depends(get_current_user),
+    admin=Depends(admin_required) 
 ):
     pedido = db.query(models.Pedido).filter(models.Pedido.id == id).first()
     if not pedido or pedido.id_usuario != current_user.id:

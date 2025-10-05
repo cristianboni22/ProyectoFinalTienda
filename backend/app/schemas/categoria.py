@@ -1,16 +1,17 @@
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
 
-class SubcategoriaBase(BaseModel):
-    id_categoria: int
+# Schema base para categoría
+class CategoriaBase(BaseModel):
     nombre: str
     descripcion: Optional[str]
 
-class SubcategoriaCreate(SubcategoriaBase):
+# Schema para crear categoría
+class CategoriaCreate(CategoriaBase):
     pass
 
-class Subcategoria(SubcategoriaBase):
+# Schema para leer/mostrar categoría
+class CategoriaOut(CategoriaBase):
     id: int
 
     class Config:
