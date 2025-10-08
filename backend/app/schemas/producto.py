@@ -1,8 +1,8 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import Optional, List
-from .variante import VarianteOut
-from .imagen import ImagenOut
+from .variante import VarianteOut,  VarianteCreate
+from .imagen import ImagenOut, ImagenCreate
 
 class ProductoBase(BaseModel):
     nombre: str = Field(..., max_length=100)
@@ -15,7 +15,8 @@ class ProductoBase(BaseModel):
     activo: Optional[bool] = True
 
 class ProductoCreate(ProductoBase):
-    pass  # Puedes añadir campos específicos para creación si es necesario
+    variantes: List[VarianteCreate] = []
+    imagenes: List[ImagenCreate] = []  # Puedes añadir campos específicos para creación si es necesario
 
 class ProductoOut(ProductoBase):
     id: int

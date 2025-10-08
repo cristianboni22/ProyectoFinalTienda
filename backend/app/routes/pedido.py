@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app import models
-from app.schemas.pedido import PedidoCreate, Pedido
+from app.schemas.pedido import PedidoCreate, Pedido,PedidoUpdate
 from app.auth import get_current_user,admin_required
 from typing import Optional
 
@@ -36,12 +36,17 @@ def obtener_pedidos(
     current_user: models.Usuario = Depends(get_current_user),
     estado: Optional[str] = None
 ):
-    query = db.query(models.Pedido).filter(models.Pedido.id_usuario == current_user.id)
+    if current_user.rol == "admin":
+        query = db.query(models.Pedido)
+    else:
+        query = db.query(models.Pedido).filter(models.Pedido.id_usuario == current_user.id)
+
     if estado:
         if estado.lower() not in VALID_ORDER_STATUSES:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                                 detail=f"Estado inválido: {estado}")
-        query = query.filter(models.Pedido.estado.ilike(estado))
+        query = query.filter(models.Pedido.estado.ilike(estado.lower()))
+    
     return query.order_by(models.Pedido.fecha_pedido.desc()).all()
 
 @router.get("/{id}", response_model=Pedido)
@@ -58,24 +63,24 @@ def obtener_pedido(
 @router.put("/{id}", response_model=Pedido)
 def actualizar_pedido(
     id: int,
-    estado: Optional[str] = None,
-    direccion_envio: Optional[str] = None,
+    pedido: PedidoUpdate,
     db: Session = Depends(get_db),
     current_user: models.Usuario = Depends(get_current_user),
-    admin=Depends(admin_required) 
+    admin=Depends(admin_required)
 ):
-    pedido = db.query(models.Pedido).filter(models.Pedido.id == id).first()
-    if not pedido or pedido.id_usuario != current_user.id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pedido no encontrado")
+    db_pedido = db.query(models.Pedido).filter(models.Pedido.id == id).first()
+    if not db_pedido:
+        raise HTTPException(status_code=404, detail="Pedido no encontrado")
 
-    if estado:
-        pedido.estado = estado.lower()
-    if direccion_envio:
-        pedido.direccion_envio = direccion_envio
+    if pedido.estado:
+        db_pedido.estado = pedido.estado.lower()
+    if pedido.direccion_envio:
+        db_pedido.direccion_envio = pedido.direccion_envio
 
     db.commit()
-    db.refresh(pedido)
-    return pedido
+    db.refresh(db_pedido)
+    return db_pedido
+
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def cancelar_pedido(

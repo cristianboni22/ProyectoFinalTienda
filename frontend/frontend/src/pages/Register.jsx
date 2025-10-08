@@ -1,6 +1,8 @@
+// src/pages/Register.jsx
 import { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { FaUser, FaEnvelope, FaLock, FaHome, FaPhone } from "react-icons/fa";
 
 function Register() {
   const { register } = useContext(AuthContext);
@@ -27,7 +29,7 @@ function Register() {
     try {
       await register(formData);
       alert("Usuario registrado correctamente.");
-      navigate("/login"); // la navegación se hace aquí
+      navigate("/login");
     } catch (err) {
       if (err.response?.data?.detail) {
         const details = err.response.data.detail;
@@ -43,26 +45,153 @@ function Register() {
   };
 
   return (
-    <div className="row justify-content-center">
-      <div className="col-md-5">
-        <h2 className="mb-4">Registro</h2>
+    <div
+      className="d-flex justify-content-center align-items-center"
+      style={{
+        minHeight: "80vh",
+        backgroundColor: "#121212", // fondo negro
+      }}
+    >
+      <div
+        className="card p-4 p-md-5 shadow-lg rounded-4"
+        style={{
+          maxWidth: "450px",
+          width: "100%",
+          backgroundColor: "#1c1c1c", // card oscuro
+          border: "2px solid #FFD700", // borde dorado
+        }}
+      >
+        <h2 className="text-center mb-4 fw-bold" style={{ color: "#FFD700" }}>
+          Registro
+        </h2>
 
         {error && <div className="alert alert-danger">{error}</div>}
 
-        <form onSubmit={handleSubmit}>
-          <input type="text" name="nombre" placeholder="Nombre" className="form-control mb-2" value={formData.nombre} onChange={handleChange} required />
-          <input type="text" name="apellido" placeholder="Apellido" className="form-control mb-2" value={formData.apellido} onChange={handleChange} required />
-          <input type="email" name="email" placeholder="Email" className="form-control mb-2" value={formData.email} onChange={handleChange} required />
-          <input type="password" name="contrasena" placeholder="Contraseña" className="form-control mb-2" value={formData.contrasena} onChange={handleChange} required />
-          <input type="text" name="direccion" placeholder="Dirección" className="form-control mb-2" value={formData.direccion} onChange={handleChange} />
-          <input type="text" name="telefono" placeholder="Teléfono" className="form-control mb-2" value={formData.telefono} onChange={handleChange} />
+        <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
+          {/* Nombre */}
+          <div className="input-group border rounded-3 overflow-hidden shadow-sm bg-dark">
+            <span className="input-group-text bg-dark border-end-0 text-warning">
+              <FaUser />
+            </span>
+            <input
+              type="text"
+              name="nombre"
+              placeholder="Nombre"
+              className="form-control border-start-0"
+              value={formData.nombre}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-          <button type="submit" className="btn btn-primary w-100">Registrarse</button>
+          {/* Apellido */}
+          <div className="input-group border rounded-3 overflow-hidden shadow-sm bg-dark">
+            <span className="input-group-text bg-dark border-end-0 text-warning">
+              <FaUser />
+            </span>
+            <input
+              type="text"
+              name="apellido"
+              placeholder="Apellido"
+              className="form-control border-start-0"
+              value={formData.apellido}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          {/* Email */}
+          <div className="input-group border rounded-3 overflow-hidden shadow-sm bg-dark">
+            <span className="input-group-text bg-dark border-end-0 text-warning">
+              <FaEnvelope />
+            </span>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              className="form-control border-start-0"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          {/* Contraseña */}
+          <div className="input-group border rounded-3 overflow-hidden shadow-sm bg-dark">
+            <span className="input-group-text bg-dark border-end-0 text-warning">
+              <FaLock />
+            </span>
+            <input
+              type="password"
+              name="contrasena"
+              placeholder="Contraseña"
+              className="form-control border-start-0"
+              value={formData.contrasena}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          {/* Dirección */}
+          <div className="input-group border rounded-3 overflow-hidden shadow-sm bg-dark">
+            <span className="input-group-text bg-dark border-end-0 text-warning">
+              <FaHome />
+            </span>
+            <input
+              type="text"
+              name="direccion"
+              placeholder="Dirección"
+              className="form-control border-start-0"
+              value={formData.direccion}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Teléfono */}
+          <div className="input-group border rounded-3 overflow-hidden shadow-sm bg-dark">
+            <span className="input-group-text bg-dark border-end-0 text-warning">
+              <FaPhone />
+            </span>
+            <input
+              type="text"
+              name="telefono"
+              placeholder="Teléfono"
+              className="form-control border-start-0"
+              value={formData.telefono}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Botón */}
+          <button
+            type="submit"
+            className="btn fw-bold py-2 mt-2"
+            style={{
+              backgroundColor: "#FFD700",
+              color: "#121212",
+              border: "none",
+              borderRadius: "0.75rem",
+              transition: "0.3s",
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = "scale(1.05)";
+              e.currentTarget.style.backgroundColor = "#FFC700";
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = "scale(1)";
+              e.currentTarget.style.backgroundColor = "#FFD700";
+            }}
+          >
+            Registrarse
+          </button>
         </form>
 
-        <div className="mt-3 text-center">
-          ¿Ya tienes cuenta? <a href="/login">Inicia sesión</a>
-        </div>
+        <p className="mt-4 text-center text-warning">
+          ¿Ya tienes cuenta?{" "}
+          <Link to="/login" className="text-white fw-semibold">
+            Inicia sesión
+          </Link>
+        </p>
       </div>
     </div>
   );

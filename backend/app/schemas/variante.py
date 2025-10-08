@@ -3,7 +3,6 @@ from typing import Optional
 from datetime import datetime
 
 class VarianteBase(BaseModel):
-    id_producto: int
     talla: Optional[str]
     color: Optional[str]
     stock_individual: Optional[int] = Field(0, ge=0) 

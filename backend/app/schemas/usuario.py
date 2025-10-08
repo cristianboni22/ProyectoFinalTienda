@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
 from datetime import datetime
 
@@ -10,8 +10,13 @@ class UsuarioBase(BaseModel):
     telefono: Optional[str] = None
 
 class UsuarioCreate(UsuarioBase):
-    contrasena: str = Field(...)  # Permite ambos nombres
-    rol: Optional[str] = "cliente"
+    nombre: str
+    apellido: str
+    email: EmailStr
+    contrasena: str
+    direccion: str = ""
+    telefono: str = ""
+    rol: str = "cliente"
 
     class Config:
         allow_population_by_field_name = True  # Permite usar alias

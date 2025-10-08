@@ -4,11 +4,20 @@ import axios from "axios";
 function AdminCategorias() {
   const [categorias, setCategorias] = useState([]);
   const [subcategorias, setSubcategorias] = useState([]);
-  const [nuevaSub, setNuevaSub] = useState({ nombre: "", id_categoria: "" });
+
+  const [nuevaCat, setNuevaCat] = useState({ nombre: "", descripcion: "" });
+  const [nuevaSub, setNuevaSub] = useState({
+    nombre: "",
+    id_categoria: "",
+    descripcion: "",
+  });
+
+  const [editandoCat, setEditandoCat] = useState(null);
   const [editandoSub, setEditandoSub] = useState(null);
+
   const token = localStorage.getItem("token");
 
-  // ------------------- FETCH -------------------
+  // --- Fetch ---
   const fetchCategorias = () => {
     axios
       .get("http://localhost:8000/categoria/", {
@@ -32,38 +41,64 @@ function AdminCategorias() {
     fetchSubcategorias();
   }, []);
 
-  // ------------------- HANDLERS -------------------
-  const handleChange = (e) => {
+  // --- Handlers ---
+  const handleChangeCat = (e) => {
+    setNuevaCat({ ...nuevaCat, [e.target.name]: e.target.value });
+  };
+
+  const handleChangeSub = (e) => {
     setNuevaSub({ ...nuevaSub, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmitCat = (e) => {
     e.preventDefault();
+    const url = editandoCat
+      ? `http://localhost:8000/categoria/${editandoCat}`
+      : "http://localhost:8000/categoria/";
+    const method = editandoCat ? axios.put : axios.post;
 
+    method(url, nuevaCat, { headers: { Authorization: `Bearer ${token}` } })
+      .then(() => {
+        setNuevaCat({ nombre: "", descripcion: "" });
+        setEditandoCat(null);
+        fetchCategorias();
+      })
+      .catch((err) => alert(err.response?.data?.detail || "Error al guardar categoría"));
+  };
+
+  const handleSubmitSub = (e) => {
+    e.preventDefault();
+    const payload = {
+      nombre: nuevaSub.nombre,
+      descripcion: nuevaSub.descripcion || "",
+      id_categoria: parseInt(nuevaSub.id_categoria),
+    };
     const url = editandoSub
       ? `http://localhost:8000/subcategoria/${editandoSub}`
       : "http://localhost:8000/subcategoria/";
     const method = editandoSub ? axios.put : axios.post;
 
-    method(url, nuevaSub, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    method(url, payload, { headers: { Authorization: `Bearer ${token}` } })
       .then(() => {
-        setNuevaSub({ nombre: "", id_categoria: "" });
+        setNuevaSub({ nombre: "", id_categoria: "", descripcion: "" });
         setEditandoSub(null);
         fetchSubcategorias();
       })
-      .catch((err) => {
-        console.error(err);
-        alert(
-          err.response?.data?.detail || "Error al guardar la subcategoría"
-        );
-      });
+      .catch((err) => alert(err.response?.data?.detail || "Error al guardar subcategoría"));
   };
 
-  const handleDelete = (id) => {
-    if (!window.confirm("¿Eliminar subcategoría?")) return;
+  const handleDeleteCat = (id) => {
+    if (!window.confirm("¿Eliminar categoría?")) return;
+    axios
+      .delete(`http://localhost:8000/categoria/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(fetchCategorias)
+      .catch((err) => console.error(err));
+  };
 
+  const handleDeleteSub = (id) => {
+    if (!window.confirm("¿Eliminar subcategoría?")) return;
     axios
       .delete(`http://localhost:8000/subcategoria/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -72,103 +107,201 @@ function AdminCategorias() {
       .catch((err) => console.error(err));
   };
 
-  const handleEdit = (sub) => {
+  const handleEditCat = (cat) => {
+    setEditandoCat(cat.id);
+    setNuevaCat({ nombre: cat.nombre, descripcion: cat.descripcion || "" });
+  };
+
+  const handleEditSub = (sub) => {
     setEditandoSub(sub.id);
     setNuevaSub({
       nombre: sub.nombre,
       id_categoria: sub.id_categoria,
+      descripcion: sub.descripcion || "",
     });
   };
 
-  // ------------------- RENDER -------------------
   return (
-    <div>
-      <h4 className="mb-3">Gestión de Subcategorías</h4>
-
-      <form className="row g-3 mb-4" onSubmit={handleSubmit}>
-        <div className="col-md-5">
-          <input
-            type="text"
-            name="nombre"
-            value={nuevaSub.nombre}
-            onChange={handleChange}
-            className="form-control"
-            placeholder="Nombre de subcategoría"
-            required
-          />
-        </div>
-        <div className="col-md-4">
-          <select
-            className="form-select"
-            name="id_categoria"
-            value={nuevaSub.id_categoria}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Selecciona categoría</option>
-            {categorias.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nombre}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="col-md-3">
-          <button type="submit" className="btn btn-success">
-            {editandoSub ? "Actualizar" : "Agregar"}
-          </button>
-          {editandoSub && (
-            <button
-              type="button"
-              className="btn btn-secondary ms-2"
-              onClick={() => {
-                setEditandoSub(null);
-                setNuevaSub({ nombre: "", id_categoria: "" });
-              }}
-            >
-              Cancelar
+    <div
+      className="p-4 rounded"
+      style={{
+        background: "linear-gradient(180deg, #0b0b0b 0%, #1c1c1c 100%)",
+        color: "#fff",
+        border: "1px solid #c5a100",
+        boxShadow: "0 0 10px rgba(197,161,0,0.3)",
+      }}
+    >
+      {/* CATEGORÍAS */}
+      <div className="mb-5">
+        <h5 className="text-warning">Categorías</h5>
+        <form className="row g-3 mb-4" onSubmit={handleSubmitCat}>
+          <div className="col-md-4">
+            <input
+              type="text"
+              name="nombre"
+              value={nuevaCat.nombre}
+              onChange={handleChangeCat}
+              className="form-control"
+              placeholder="Nombre de categoría"
+              required
+            />
+          </div>
+          <div className="col-md-5">
+            <input
+              type="text"
+              name="descripcion"
+              value={nuevaCat.descripcion}
+              onChange={handleChangeCat}
+              className="form-control "
+              placeholder="Descripción (opcional)"
+            />
+          </div>
+          <div className="col-md-3 d-flex gap-2">
+            <button type="submit" className="btn btn-warning fw-bold text-dark flex-fill">
+              {editandoCat ? "Actualizar" : "Agregar"}
             </button>
-          )}
-        </div>
-      </form>
+            {editandoCat && (
+              <button
+                type="button"
+                className="btn btn-secondary flex-fill"
+                onClick={() => {
+                  setEditandoCat(null);
+                  setNuevaCat({ nombre: "", descripcion: "" });
+                }}
+              >
+                Cancelar
+              </button>
+            )}
+          </div>
+        </form>
 
-      <table className="table table-striped table-bordered">
-        <thead className="table-dark">
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Categoría</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {subcategorias.map((s) => {
-            const categoriaNombre =
-              categorias.find((c) => c.id === s.id_categoria)?.nombre || "-";
-            return (
-              <tr key={s.id}>
-                <td>{s.id}</td>
-                <td>{s.nombre}</td>
-                <td>{categoriaNombre}</td>
-                <td>
-                  <button
-                    className="btn btn-warning btn-sm me-2"
-                    onClick={() => handleEdit(s)}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => handleDelete(s.id)}
-                  >
-                    Eliminar
-                  </button>
-                </td>
+        <div className="table-responsive">
+          <table className="table table-dark table-hover table-bordered border-warning align-middle">
+            <thead className="table-warning text-dark">
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {categorias.map((c) => (
+                <tr key={c.id}>
+                  <td>{c.id}</td>
+                  <td className="fw-bold text-warning">{c.nombre}</td>
+                  <td>{c.descripcion || "-"}</td>
+                  <td>
+                    <button
+                      className="btn btn-outline-warning btn-sm me-2"
+                      onClick={() => handleEditCat(c)}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={() => handleDeleteCat(c.id)}
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* SUBCATEGORÍAS */}
+      <div>
+        <h5 className="text-warning">Subcategorías</h5>
+        <form className="row g-3 mb-4" onSubmit={handleSubmitSub}>
+          <div className="col-md-3">
+            <input
+              type="text"
+              name="nombre"
+              value={nuevaSub.nombre}
+              onChange={handleChangeSub}
+              className="form-control "
+              placeholder="Nombre de subcategoría"
+              required
+            />
+          </div>
+          <div className="col-md-4">
+            <select
+              className="form-select"
+              name="id_categoria"
+              value={nuevaSub.id_categoria}
+              onChange={handleChangeSub}
+              required
+            >
+              <option value="">Selecciona categoría</option>
+              {categorias.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="col-md-3">
+            <input
+              type="text"
+              name="descripcion"
+              value={nuevaSub.descripcion}
+              onChange={handleChangeSub}
+              className="form-control"
+              placeholder="Descripción (opcional)"
+            />
+          </div>
+          <div className="col-md-2">
+            <button type="submit" className="btn btn-warning fw-bold text-dark w-100">
+              {editandoSub ? "Actualizar" : "Agregar"}
+            </button>
+          </div>
+        </form>
+
+        <div className="table-responsive">
+          <table className="table table-dark table-hover table-bordered border-warning align-middle">
+            <thead className="table-warning text-dark">
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Categoría</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {subcategorias.map((s) => {
+                const categoriaNombre =
+                  categorias.find((c) => c.id === s.id_categoria)?.nombre || "-";
+                return (
+                  <tr key={s.id}>
+                    <td>{s.id}</td>
+                    <td className="fw-bold text-warning">{s.nombre}</td>
+                    <td>{s.descripcion || "-"}</td>
+                    <td>{categoriaNombre}</td>
+                    <td>
+                      <button
+                        className="btn btn-outline-warning btn-sm me-2"
+                        onClick={() => handleEditSub(s)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={() => handleDeleteSub(s.id)}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

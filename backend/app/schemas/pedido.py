@@ -16,3 +16,7 @@ class Pedido(PedidoBase):
 
     class Config:
         from_attributes = True
+
+class PedidoUpdate(BaseModel):
+    estado: Optional[str] = None
+    direccion_envio: Optional[str] = None

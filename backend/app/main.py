@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
-from app.models import * 
+from app.models import *
+from fastapi.staticfiles import StaticFiles
 
 Base.metadata.create_all(bind=engine)
 
@@ -32,6 +33,7 @@ app.include_router(subcategoria.router, prefix="/subcategoria", tags=["SubCatego
 app.include_router(usuario.router, prefix="/usuario", tags=["Usuario"])
 app.include_router(variante.router, prefix="/variante", tags=["Variante"])
 app.include_router(auth_router, prefix="/auth", tags=["Auth"])
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 #Crear todas las tablas de la base de datos

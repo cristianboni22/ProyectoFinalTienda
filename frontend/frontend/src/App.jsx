@@ -12,6 +12,7 @@ import Checkout from "./pages/Checkout";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import AdminPanel from './pages/AdminPanel';
 import Nosotros from './pages/Nosotros';
+import Contacto from './pages/Contacto';
 
 function App() {
   return (
@@ -22,7 +23,7 @@ function App() {
 
         {/* El contenido se expande y empuja el footer */}
         <main className="flex-fill">
-          <div className="container mt-4 mb-5">
+          <div className="container-fluid p-0">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/productos" element={<Products />} />
@@ -33,6 +34,7 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/perfil" element={<Profile />} />
               <Route path="/checkout" element={<Checkout />} />
+              <Route path="/contacto" element={<Contacto />} />
               <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
               <Route path="/admin" element={<AdminPanel />} />
             </Routes>

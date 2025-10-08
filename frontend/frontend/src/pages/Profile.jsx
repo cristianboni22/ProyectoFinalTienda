@@ -1,4 +1,6 @@
+// src/pages/Profile.jsx
 import { useEffect, useState } from "react";
+import { FaUser, FaEnvelope, FaPhone, FaHome, FaCalendarAlt } from "react-icons/fa";
 
 function Profile() {
   const [usuario, setUsuario] = useState(null);
@@ -47,7 +49,6 @@ function Profile() {
                 (p) => p.id === detalle.id_producto
               );
 
-              // Buscar variante específica según talla y color
               const variante = producto?.variantes.find(
                 (v) =>
                   (v.talla === detalle.talla || !detalle.talla) &&
@@ -81,7 +82,6 @@ function Profile() {
     }
   };
 
-  // Función para calcular el total de un pedido
   const calcularTotal = (pedido) => {
     return pedido.detalles.reduce((acc, detalle) => {
       const precio = detalle.producto?.precio || 0;
@@ -93,20 +93,20 @@ function Profile() {
   return (
     <div className="container my-5">
       {/* Info usuario */}
-      <div className="card mb-4 shadow-sm border-0 rounded-4">
-        <div className="card-header bg-dark text-white rounded-top-4">
-          <h4 className="mb-0">Perfil de Usuario</h4>
+      <div className="card mb-5 shadow-sm border-0 rounded-4">
+        <div className="card-header bg-dark text-white rounded-top-4 d-flex align-items-center gap-2">
+          <FaUser /> <h4 className="mb-0">Perfil de Usuario</h4>
         </div>
         <div className="card-body">
-          <div className="row">
+          <div className="row g-3">
             <div className="col-md-6">
-              <p><strong>Nombre:</strong> {usuario.nombre} {usuario.apellido}</p>
-              <p><strong>Email:</strong> {usuario.email}</p>
-              <p><strong>Teléfono:</strong> {usuario.telefono || "No especificado"}</p>
+              <p><FaUser className="me-2 text-primary"/> <strong>Nombre:</strong> {usuario.nombre} {usuario.apellido}</p>
+              <p><FaEnvelope className="me-2 text-primary"/> <strong>Email:</strong> {usuario.email}</p>
+              <p><FaPhone className="me-2 text-primary"/> <strong>Teléfono:</strong> {usuario.telefono || "No especificado"}</p>
             </div>
             <div className="col-md-6">
-              <p><strong>Dirección:</strong> {usuario.direccion || "No especificada"}</p>
-              <p><strong>Registrado:</strong> {new Date(usuario.fecha_registro).toLocaleDateString()}</p>
+              <p><FaHome className="me-2 text-primary"/> <strong>Dirección:</strong> {usuario.direccion || "No especificada"}</p>
+              <p><FaCalendarAlt className="me-2 text-primary"/> <strong>Registrado:</strong> {new Date(usuario.fecha_registro).toLocaleDateString()}</p>
             </div>
           </div>
         </div>
@@ -122,18 +122,17 @@ function Profile() {
             <div key={pedido.id} className="accordion-item mb-3 border-0 shadow-sm rounded-4">
               <h2 className="accordion-header" id={`heading${pedido.id}`}>
                 <button
-                  className={`accordion-button ${idx !== 0 ? "collapsed" : ""} rounded-4`}
+                  className={`accordion-button ${idx !== 0 ? "collapsed" : ""} rounded-4 bg-light`}
                   type="button"
                   data-bs-toggle="collapse"
                   data-bs-target={`#collapse${pedido.id}`}
                   aria-expanded={idx === 0 ? "true" : "false"}
                   aria-controls={`collapse${pedido.id}`}
                 >
-                  Pedido -
+                  Pedido - 
                   <span className={`badge bg-${estadoColor(pedido.estado)} ms-2 text-capitalize`}>
                     {pedido.estado}
-                  </span>{" "}
-                  - Total: 💲{calcularTotal(pedido).toFixed(2)}
+                  </span> - Total: 💲{calcularTotal(pedido).toFixed(2)}
                 </button>
               </h2>
               <div
@@ -142,32 +141,41 @@ function Profile() {
                 aria-labelledby={`heading${pedido.id}`}
                 data-bs-parent="#pedidosAccordion"
               >
-                <div className="accordion-body">
+                <div className="accordion-body bg-white rounded-3">
                   <p><strong>Fecha:</strong> {new Date(pedido.fecha_pedido).toLocaleString()}</p>
                   <p><strong>Dirección de envío:</strong> {pedido.direccion_envio}</p>
 
-                  <table className="table table-sm mt-3">
-                    <thead>
-                      <tr>
-                        <th>Producto</th>
-                        <th>Talla</th>
-                        <th>Color</th>
-                        <th>Cantidad</th>
-                        <th>Precio</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pedido.detalles.map((detalle) => (
-                        <tr key={detalle.id}>
-                          <td>{detalle.producto?.nombre || "Producto no disponible"}</td>
-                          <td>{detalle.variante?.talla || "-"}</td>
-                          <td>{detalle.variante?.color || "-"}</td>
-                          <td>{detalle.cantidad || "-"}</td>
-                          <td>💲{detalle.producto?.precio || 0}</td>
+                  <div className="table-responsive">
+                    <table className="table table-sm table-hover mt-3 rounded-3 shadow-sm align-middle">
+                      <thead className="table-light rounded-3">
+                        <tr>
+                          <th>Producto</th>
+                          <th>Talla</th>
+                          <th>Color</th>
+                          <th>Cantidad</th>
+                          <th>Precio</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {pedido.detalles.map((detalle) => (
+                          <tr key={detalle.id}>
+                            <td className="d-flex align-items-center gap-2">
+                              <img
+                                src={detalle.producto?.imagenes?.[0]?.url_imagen || '/placeholder.png'}
+                                alt={detalle.producto?.nombre}
+                                style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '0.5rem' }}
+                              />
+                              {detalle.producto?.nombre || "Producto no disponible"}
+                            </td>
+                            <td>{detalle.variante?.talla || "-"}</td>
+                            <td>{detalle.variante?.color || "-"}</td>
+                            <td>{detalle.cantidad || "-"}</td>
+                            <td>💲{detalle.producto?.precio || 0}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>

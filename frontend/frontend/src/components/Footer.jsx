@@ -1,10 +1,10 @@
 function Footer() {
   return (
-    <footer className="bg-dark text-white mt-5 pt-4 pb-3">
+    <footer className="bg-dark text-white mt-5 pt-5 pb-3">
       <div className="container d-flex flex-column flex-md-row justify-content-between align-items-center">
         {/* Logo */}
         <h4 className="fw-bold mb-3 mb-md-0">
-          Mi<span className="text-primary">Tienda</span>
+          Mi<span className="text-warning">Tienda</span>
         </h4>
 
         {/* Links */}

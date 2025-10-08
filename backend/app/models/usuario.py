@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, TIMESTAMP
 from ..database import Base
-from sqlalchemy.orm import relationship
+from datetime import datetime
 
 class Usuario(Base):
     __tablename__ = "usuario"
@@ -12,7 +12,5 @@ class Usuario(Base):
     contrasena = Column(String(255), nullable=False)
     direccion = Column(Text)
     telefono = Column(String(20))
-    fecha_registro = Column(TIMESTAMP)
+    fecha_registro = Column(TIMESTAMP, default=datetime.utcnow)  
     rol = Column(String(20), default="cliente")
-
-    

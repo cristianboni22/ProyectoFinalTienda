@@ -1,219 +1,192 @@
-import { useEffect, useState } from "react";
+// src/AdminProducto.jsx
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-function AdminProductos() {
+const AdminProducto = () => {
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [subcategorias, setSubcategorias] = useState([]);
-  const [nuevoProducto, setNuevoProducto] = useState({
+  const [showModal, setShowModal] = useState(false);
+  const [editingProducto, setEditingProducto] = useState(null);
+  const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
     precio: 0,
-    id_categoria: "",
-    id_subcategoria: "",
+    stock: 0,
+    marca: "",
+    activo: true,
+    id_categoria: 0,
+    id_subcategoria: 0,
+    variantes: [],
+    imagenes: [],
   });
-  const [editando, setEditando] = useState(null);
+
   const token = localStorage.getItem("token");
+  const API = "http://localhost:8000/producto/";
 
-  // ---------------- FETCH ----------------
-  const fetchProductos = () => {
-    axios
-      .get("http://localhost:8000/producto/", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => setProductos(res.data))
-      .catch((err) => console.error(err));
+  // ---------------------------
+  // Fetch productos, categorias y subcategorias
+  // ---------------------------
+  const fetchProductos = async () => {
+    const res = await axios.get(API, { headers: { Authorization: `Bearer ${token}` } });
+    setProductos(res.data);
   };
 
-  const fetchCategorias = () => {
-    axios
-      .get("http://localhost:8000/categoria/", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => setCategorias(res.data))
-      .catch((err) => console.error(err));
+  const fetchCategorias = async () => {
+    const res = await axios.get("http://localhost:8000/categoria/");
+    setCategorias(res.data);
   };
 
-  const fetchTodasSubcategorias = () => {
-    axios
-      .get("http://localhost:8000/subcategoria/all", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => setSubcategorias(res.data))
-      .catch((err) => console.error(err));
+  const fetchSubcategorias = async () => {
+    const res = await axios.get("http://localhost:8000/subcategoria/all");
+    setSubcategorias(res.data);
   };
 
   useEffect(() => {
     fetchProductos();
     fetchCategorias();
-    fetchTodasSubcategorias();
+    fetchSubcategorias();
   }, []);
 
-  // ---------------- HANDLERS ----------------
+  // ---------------------------
+  // Handle input change
+  // ---------------------------
   const handleChange = (e) => {
-    setNuevoProducto({ ...nuevoProducto, [e.target.name]: e.target.value });
-    // Reset subcategoría si cambia categoría
-    if (e.target.name === "id_categoria") {
-      setNuevoProducto((prev) => ({ ...prev, id_subcategoria: "" }));
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (editando) {
-      axios
-        .put(
-          `http://localhost:8000/producto/${editando}`,
-          nuevoProducto,
-          { headers: { Authorization: `Bearer ${token}` } }
-        )
-        .then(() => {
-          setEditando(null);
-          setNuevoProducto({ nombre: "", descripcion: "", precio: 0, id_categoria: "", id_subcategoria: "" });
-          fetchProductos();
-        });
-    } else {
-      axios
-        .post("http://localhost:8000/producto/", nuevoProducto, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then(() => {
-          setNuevoProducto({ nombre: "", descripcion: "", precio: 0, id_categoria: "", id_subcategoria: "" });
-          fetchProductos();
-        });
-    }
-  };
-
-  const handleDelete = (id) => {
-    if (!window.confirm("¿Seguro que deseas eliminar este producto?")) return;
-    axios
-      .delete(`http://localhost:8000/producto/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(fetchProductos);
-  };
-
-  const handleEdit = (producto) => {
-    setEditando(producto.id);
-    setNuevoProducto({
-      nombre: producto.nombre,
-      descripcion: producto.descripcion,
-      precio: producto.precio,
-      id_categoria: producto.id_categoria || "",
-      id_subcategoria: producto.id_subcategoria || "",
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === "checkbox" ? checked : value,
     });
   };
 
-  // ---------------- FILTROS SUBCATEGORÍA ----------------
-  const subcategoriasFiltradas = subcategorias.filter(
-    (s) => s.id_categoria === Number(nuevoProducto.id_categoria)
-  );
+  // ---------------------------
+  // Abrir modal para crear o editar
+  // ---------------------------
+  const openModal = (producto = null) => {
+    setEditingProducto(producto);
+    if (producto) {
+      setFormData({ ...producto });
+    } else {
+      setFormData({
+        nombre: "",
+        descripcion: "",
+        precio: 0,
+        stock: 0,
+        marca: "",
+        activo: true,
+        id_categoria: categorias[0]?.id || 0,
+        id_subcategoria: subcategorias[0]?.id || 0,
+        variantes: [],
+        imagenes: [],
+      });
+    }
+    setShowModal(true);
+  };
 
-  const getCategoriaNombre = (id) => categorias.find((c) => c.id === id)?.nombre || "-";
-  const getSubcategoriaNombre = (id) => subcategorias.find((s) => s.id === id)?.nombre || "-";
+  const closeModal = () => setShowModal(false);
 
-  // ---------------- RENDER ----------------
+  // ---------------------------
+  // Agregar variante
+  // ---------------------------
+  const addVariante = () => {
+    setFormData({
+      ...formData,
+      variantes: [...formData.variantes, { talla: "", color: "", stock_individual: 0, sku: "" }],
+    });
+  };
+
+  const handleVarianteChange = (index, e) => {
+    const { name, value } = e.target;
+    const nuevas = [...formData.variantes];
+    nuevas[index][name] = value;
+    setFormData({ ...formData, variantes: nuevas });
+  };
+
+  const removeVariante = (index) => {
+    const nuevas = [...formData.variantes];
+    nuevas.splice(index, 1);
+    setFormData({ ...formData, variantes: nuevas });
+  };
+
+  // ---------------------------
+  // Agregar imagen
+  // ---------------------------
+  const addImagen = (url) => {
+    setFormData({
+      ...formData,
+      imagenes: [...formData.imagenes, { url_imagen: url }],
+    });
+  };
+
+  const removeImagen = (index) => {
+    const nuevas = [...formData.imagenes];
+    nuevas.splice(index, 1);
+    setFormData({ ...formData, imagenes: nuevas });
+  };
+
+  const uploadImagen = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const data = new FormData();
+    data.append("file", file);
+    const res = await axios.post(`${API}upload-imagen/`, data);
+    addImagen(res.data.url_imagen);
+  };
+
+  // ---------------------------
+  // Crear o actualizar producto
+  // ---------------------------
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingProducto) {
+        await axios.put(`${API}${editingProducto.id}`, formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        await axios.post(API, formData, { headers: { Authorization: `Bearer ${token}` } });
+      }
+      fetchProductos();
+      closeModal();
+    } catch (err) {
+      console.error(err);
+      alert("Error al guardar producto");
+    }
+  };
+
+  // ---------------------------
+  // Eliminar producto
+  // ---------------------------
+  const handleDelete = async (id) => {
+    if (!window.confirm("¿Estás seguro de eliminar este producto?")) return;
+    await axios.delete(`${API}${id}`, { headers: { Authorization: `Bearer ${token}` } });
+    fetchProductos();
+  };
+
+  // ---------------------------
+  // Render
+  // ---------------------------
   return (
-    <div>
-      <h4 className="mb-3">Gestión de Productos</h4>
+    <div className="container mt-4 text-warning">
+      <h3>Administración de Productos</h3>
+      <button className="btn btn-primary mb-3" onClick={() => openModal()}>
+        Crear Producto
+      </button>
 
-      {/* Formulario */}
-      <form className="row g-3 mb-4" onSubmit={handleSubmit}>
-        <div className="col-md-3">
-          <input
-            type="text"
-            name="nombre"
-            value={nuevoProducto.nombre}
-            onChange={handleChange}
-            className="form-control"
-            placeholder="Nombre"
-            required
-          />
-        </div>
-        <div className="col-md-3">
-          <input
-            type="text"
-            name="descripcion"
-            value={nuevoProducto.descripcion}
-            onChange={handleChange}
-            className="form-control"
-            placeholder="Descripción"
-          />
-        </div>
-        <div className="col-md-2">
-          <input
-            type="number"
-            name="precio"
-            value={nuevoProducto.precio}
-            onChange={handleChange}
-            className="form-control"
-            placeholder="Precio (€)"
-            min="0"
-            required
-          />
-        </div>
-        <div className="col-md-2">
-          <select
-            className="form-select"
-            name="id_categoria"
-            value={nuevoProducto.id_categoria}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Seleccionar Categoría</option>
-            {categorias.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nombre}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="col-md-2">
-          <select
-            className="form-select"
-            name="id_subcategoria"
-            value={nuevoProducto.id_subcategoria}
-            onChange={handleChange}
-            required
-            disabled={!nuevoProducto.id_categoria}
-          >
-            <option value="">Seleccionar Subcategoría</option>
-            {subcategoriasFiltradas.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.nombre}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="col-12">
-          <button type="submit" className="btn btn-success">
-            {editando ? "Guardar cambios" : "Agregar producto"}
-          </button>
-          {editando && (
-            <button
-              type="button"
-              className="btn btn-secondary ms-2"
-              onClick={() => {
-                setEditando(null);
-                setNuevoProducto({ nombre: "", descripcion: "", precio: 0, id_categoria: "", id_subcategoria: "" });
-              }}
-            >
-              Cancelar
-            </button>
-          )}
-        </div>
-      </form>
-
-      {/* Tabla de productos */}
-      <table className="table table-striped table-bordered align-middle">
-        <thead className="table-dark">
+      <table className="table table-dark table-hover table-bordered border-warning align-middle">
+        <thead className="table-warning text-dark">
           <tr>
             <th>ID</th>
             <th>Nombre</th>
             <th>Precio</th>
-            <th>Categoría</th>
-            <th>Subcategoría</th>
+            <th>Stock</th>
+            <th>Marca</th>
             <th>Activo</th>
+            <th>Categoria</th>
+            <th>Subcategoria</th>
+            <th>Variantes</th>
+            <th>Imagenes</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -222,20 +195,231 @@ function AdminProductos() {
             <tr key={p.id}>
               <td>{p.id}</td>
               <td>{p.nombre}</td>
-              <td>{p.precio} €</td>
-              <td>{getCategoriaNombre(p.id_categoria)}</td>
-              <td>{getSubcategoriaNombre(p.id_subcategoria)}</td>
-              <td>{p.activo ? "✅" : "❌"}</td>
+              <td>{p.precio}</td>
+              <td>{p.stock}</td>
+              <td>{p.marca}</td>
+              <td>{p.activo ? "Sí" : "No"}</td>
+              <td>{p.id_categoria}</td>
+              <td>{p.id_subcategoria}</td>
               <td>
-                <button className="btn btn-warning btn-sm me-2" onClick={() => handleEdit(p)}>Editar</button>
-                <button className="btn btn-danger btn-sm" onClick={() => handleDelete(p.id)}>Eliminar</button>
+                {p.variantes.map((v, i) => (
+                  <div key={i}>
+                    {v.talla} {v.color} ({v.stock_individual})
+                  </div>
+                ))}
+              </td>
+              <td>
+                {p.imagenes.map((img, i) => (
+                  <img key={i} src={img.url_imagen} alt="" width="50" className="me-1" />
+                ))}
+              </td>
+              <td>
+                <button className="btn btn-outline-warning btn-sm me-2" onClick={() => openModal(p)}>
+                  Editar
+                </button>
+                <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(p.id)}>
+                  Eliminar
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {/* Modal */}
+      {showModal && (
+  <div className="modal d-block" tabIndex="-1">
+    <div className="modal-dialog modal-xl">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h5 className="modal-title">{editingProducto ? "Editar" : "Crear"} Producto</h5>
+          <button type="button" className="btn-close" onClick={closeModal}></button>
+        </div>
+        <div className="modal-body">
+          <form onSubmit={handleSubmit}>
+            <div className="row mb-2">
+              <div className="col">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Nombre"
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleChange}
+                  style={{ '::placeholder': { color: 'gray' } }}
+                  required
+                />
+              </div>
+              <div className="col">
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Precio"
+                  name="precio"
+                  value={formData.precio}
+                  onChange={handleChange}
+                  style={{ '::placeholder': { color: 'gray' } }}
+                  required
+                />
+              </div>
+              <div className="col">
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Stock"
+                  name="stock"
+                  value={formData.stock}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="row mb-2">
+              <div className="col">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Marca"
+                  name="marca"
+                  value={formData.marca}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="col">
+                <select
+                  className="form-select"
+                  name="id_categoria"
+                  value={formData.id_categoria}
+                  onChange={handleChange}
+                  required
+                >
+                  {categorias.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 🔽 SUBCATEGORÍAS FILTRADAS POR CATEGORÍA */}
+              <div className="col">
+                <select
+                  className="form-select"
+                  name="id_subcategoria"
+                  value={formData.id_subcategoria}
+                  onChange={handleChange}
+                  required
+                >
+                  {subcategorias
+                    .filter((s) => s.id_categoria === Number(formData.id_categoria))
+                    .map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.nombre}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div className="col">
+                <div className="form-check">
+                  <input
+                    type="checkbox"
+                    className="form-check-input"
+                    name="activo"
+                    checked={formData.activo}
+                    onChange={handleChange}
+                  />
+                  <label className="form-check-label">Activo</label>
+                </div>
+              </div>
+            </div>
+
+            <hr />
+            <h6>Variantes</h6>
+            {formData.variantes.map((v, i) => (
+              <div className="row mb-2" key={i}>
+                <div className="col">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Talla"
+                    name="talla"
+                    value={v.talla}
+                    onChange={(e) => handleVarianteChange(i, e)}
+                  />
+                </div>
+                <div className="col">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Color"
+                    name="color"
+                    value={v.color}
+                    onChange={(e) => handleVarianteChange(i, e)}
+                  />
+                </div>
+                <div className="col">
+                  <input
+                    type="number"
+                    className="form-control"
+                    placeholder="Stock"
+                    name="stock_individual"
+                    value={v.stock_individual}
+                    onChange={(e) => handleVarianteChange(i, e)}
+                  />
+                </div>
+                <div className="col">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="SKU"
+                    name="sku"
+                    value={v.sku}
+                    onChange={(e) => handleVarianteChange(i, e)}
+                  />
+                </div>
+                <div className="col">
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={() => removeVariante(i)}
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            ))}
+            <button type="button" className="btn btn-secondary mb-2" onClick={addVariante}>
+              Agregar Variante
+            </button>
+
+            <hr />
+            <h6>Imágenes</h6>
+            {formData.imagenes.map((img, i) => (
+              <div className="mb-2" key={i}>
+                <img src={img.url_imagen} alt="" width="100" className="me-2" />
+                <button type="button" className="btn btn-danger btn-sm" onClick={() => removeImagen(i)}>
+                  Eliminar
+                </button>
+              </div>
+            ))}
+            <input type="file" onChange={uploadImagen} className="form-control mb-2" />
+
+            <button type="submit" className="btn btn-success">
+              Guardar
+            </button>
+            <button type="button" className="btn btn-secondary ms-2" onClick={closeModal}>
+              Cancelar
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
-}
+};
 
-export default AdminProductos;
+export default AdminProducto;

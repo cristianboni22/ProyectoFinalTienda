@@ -17,18 +17,13 @@ function ProductDetail() {
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [cantidad, setCantidad] = useState(1);
 
-  // Cargar producto
   useEffect(() => {
     getProductDetail(id).then((data) => {
       setProduct(data);
       if (data?.imagenes?.length > 0) setMainImage(data.imagenes[0].url_imagen);
     });
-  }, [id]);
-
-  // Cargar categorías
-  useEffect(() => {
     getCategories().then(setCategories);
-  }, []);
+  }, [id]);
 
   if (!product) return <div className="text-center my-5">Cargando...</div>;
 
@@ -48,7 +43,7 @@ function ProductDetail() {
       <div className="row g-5">
         {/* Galería */}
         <div className="col-md-6">
-          <div className="border rounded shadow-sm p-3 text-center bg-white">
+          <div className="border rounded shadow-sm p-3 bg-white d-flex justify-content-center align-items-center">
             <img
               src={mainImage}
               alt={product.nombre}
@@ -56,6 +51,7 @@ function ProductDetail() {
               style={{ maxHeight: "400px", objectFit: "contain" }}
             />
           </div>
+
           {product.imagenes?.length > 1 && (
             <div className="d-flex gap-2 mt-3 justify-content-center flex-wrap">
               {product.imagenes.map((img, index) => (
@@ -65,7 +61,7 @@ function ProductDetail() {
                   alt={`Vista ${index + 1}`}
                   onClick={() => setMainImage(img.url_imagen)}
                   className={`img-thumbnail ${
-                    mainImage === img.url_imagen ? "border border-primary" : ""
+                    mainImage === img.url_imagen ? "border border-warning" : ""
                   }`}
                   style={{
                     width: "80px",
@@ -80,10 +76,10 @@ function ProductDetail() {
         </div>
 
         {/* Información del producto */}
-        <div className="col-md-6">
+        <div className="col-md-6 d-flex flex-column justify-content-center">
           <h2 className="fw-bold">{product.nombre}</h2>
           <p className="text-muted">{product.descripcion}</p>
-          <h3 className="text-success fw-bold mb-4">€{product.precio}</h3>
+          <h3 className="text-warning fw-bold mb-4">€{product.precio.toFixed(2)}</h3>
 
           {/* Variantes */}
           {product.variantes?.length > 0 && (
@@ -94,7 +90,7 @@ function ProductDetail() {
                   <li
                     key={v.id}
                     className={`list-group-item ${
-                      selectedVariant?.id === v.id ? "active" : ""
+                      selectedVariant?.id === v.id ? "active bg-warning text-dark" : ""
                     }`}
                     style={{ cursor: "pointer" }}
                     onClick={() => setSelectedVariant(v)}
@@ -107,7 +103,7 @@ function ProductDetail() {
           )}
 
           {/* Cantidad */}
-          <div className="d-flex gap-2 mb-3">
+          <div className="d-flex align-items-center gap-2 mb-3">
             <input
               type="number"
               min="1"
@@ -117,11 +113,12 @@ function ProductDetail() {
               style={{ width: "70px" }}
               onChange={(e) => setCantidad(parseInt(e.target.value))}
             />
+            <span className="text-muted">Disponible: {selectedVariant?.stock_individual || product.stock}</span>
           </div>
 
           {/* Botón agregar al carrito */}
           <button
-            className="btn btn-lg btn-primary d-flex align-items-center gap-2"
+            className="btn btn-warning btn-lg d-flex align-items-center gap-2 shadow-sm"
             onClick={handleAddToCart}
           >
             <FaCartPlus /> Agregar al carrito
@@ -134,7 +131,7 @@ function ProductDetail() {
         <ul className="nav nav-tabs" id="productTabs" role="tablist">
           <li className="nav-item" role="presentation">
             <button
-              className="nav-link active"
+              className="nav-link active fw-semibold text-dark"
               id="desc-tab"
               data-bs-toggle="tab"
               data-bs-target="#desc"
@@ -146,7 +143,7 @@ function ProductDetail() {
           </li>
           <li className="nav-item" role="presentation">
             <button
-              className="nav-link"
+              className="nav-link fw-semibold text-dark"
               id="detalles-tab"
               data-bs-toggle="tab"
               data-bs-target="#detalles"
@@ -157,7 +154,7 @@ function ProductDetail() {
             </button>
           </li>
         </ul>
-        <div className="tab-content p-3 border border-top-0 rounded-bottom bg-white">
+        <div className="tab-content p-3 border border-top-0 rounded-bottom bg-white shadow-sm">
           <div
             className="tab-pane fade show active"
             id="desc"
@@ -172,11 +169,11 @@ function ProductDetail() {
             role="tabpanel"
             aria-labelledby="detalles-tab"
           >
-            <ul>
-              <li><strong>Nombre:</strong> {product.nombre}</li>
-              <li><strong>Marca:</strong> {product.marca}</li>
-              <li><strong>Categoría:</strong> {product.id_categoria}</li>
-              <li><strong>Stock total:</strong> {product.stock}</li>
+            <ul className="list-group list-group-flush">
+              <li className="list-group-item"><strong>Nombre:</strong> {product.nombre}</li>
+              <li className="list-group-item"><strong>Marca:</strong> {product.marca}</li>
+              <li className="list-group-item"><strong>Categoría:</strong> {product.id_categoria}</li>
+              <li className="list-group-item"><strong>Stock total:</strong> {product.stock}</li>
             </ul>
           </div>
         </div>
