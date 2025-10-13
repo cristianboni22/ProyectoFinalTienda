@@ -7,4 +7,4 @@ pydantic
 passlib
 python-multipart
 python-jose[cryptography]
-pip install 'pydantic[email]'
+pydantic[email]
