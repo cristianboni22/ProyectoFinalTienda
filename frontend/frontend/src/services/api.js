@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000'; // Cambia esto por la URL de tu backend
+const API_URL = 'http://mitiendaproyecto.zapto.org:8000'; // Cambia esto por la URL de tu backend
 
 export const getFeaturedProducts = async () => {
   const res = await axios.get(`${API_URL}/producto?destacados=true`);

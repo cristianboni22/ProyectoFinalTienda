@@ -15,19 +15,19 @@ function Profile() {
       return;
     }
 
-    const fetchUsuario = fetch("http://localhost:8000/usuario/me", {
+    const fetchUsuario = fetch("http://mitiendaproyecto.zapto.org:8000/usuario/me", {
       headers: { Authorization: `Bearer ${token}` },
     }).then((res) =>
       res.ok ? res.json() : Promise.reject("No se pudo obtener el usuario")
     );
 
-    const fetchPedidos = fetch("http://localhost:8000/pedido/", {
+    const fetchPedidos = fetch("http://mitiendaproyecto.zapto.org:8000/pedido/", {
       headers: { Authorization: `Bearer ${token}` },
     }).then((res) =>
       res.ok ? res.json() : Promise.reject("No se pudieron cargar los pedidos")
     );
 
-    const fetchProductos = fetch("http://localhost:8000/producto/").then((res) =>
+    const fetchProductos = fetch("http://mitiendaproyecto.zapto.org:8000/producto/").then((res) =>
       res.ok ? res.json() : Promise.reject("No se pudieron cargar los productos")
     );
 
@@ -39,7 +39,7 @@ function Profile() {
         const pedidosConDetalles = await Promise.all(
           pedidosData.map(async (pedido) => {
             const detallesRes = await fetch(
-              `http://localhost:8000/detalle_pedido/pedido/${pedido.id}`,
+              `http://mitiendaproyecto.zapto.org:8000/detalle_pedido/pedido/${pedido.id}`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
             const detalles = detallesRes.ok ? await detallesRes.json() : [];

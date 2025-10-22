@@ -23,7 +23,7 @@ function AdminPanel() {
     }
 
     axios
-      .get("http://localhost:8000/usuario/me", {
+      .get("http://mitiendaproyecto.zapto.org:8000/usuario/me", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {

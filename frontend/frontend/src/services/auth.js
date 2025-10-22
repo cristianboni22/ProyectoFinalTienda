@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8000/auth";
+const API_URL = "http://mitiendaproyecto.zapto.org:8000/auth";
 
 export const registerUser = async (userData) => {
   const res = await axios.post(`${API_URL}/register`, userData, {
@@ -14,7 +14,7 @@ export const loginUser = async (email, password) => {
   params.append("username", email); // Obligatorio para OAuth2PasswordRequestForm
   params.append("password", password);
 
-  const res = await axios.post("http://localhost:8000/auth/login", params, {
+  const res = await axios.post("http://mitiendaproyecto.zapto.org:8000/auth/login", params, {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
   });
 
