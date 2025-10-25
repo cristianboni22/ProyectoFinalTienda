@@ -53,7 +53,7 @@ services:
       - 443:443
     environment:
       DOMAINS: "${DOMAIN} -> http://frontend:80"
-      STAGE: "staging" # usa "staging" si quieres probar sin certificados reales
+      STAGE: "staging"
       FORCE_RENEW: "true"
     volumes:
       - ssl_certs_data:/var/lib/https-portal
