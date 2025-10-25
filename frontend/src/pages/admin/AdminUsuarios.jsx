@@ -23,7 +23,7 @@ const AdminUsuarios = () => {
 
   const fetchUsuarios = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/usuario/", axiosConfig);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/usuario/`, axiosConfig);
       setUsuarios(response.data);
     } catch (err) {
       console.error(err.response?.data || err.message);
@@ -51,14 +51,14 @@ const AdminUsuarios = () => {
     try {
       if (formData.id) {
         const response = await axios.put(
-          `http://localhost:8000/usuario/${formData.id}`,
+          `${import.meta.env.VITE_API_URL}/usuario/${formData.id}`,
           formData,
           axiosConfig
         );
         setUsuarios(usuarios.map((u) => (u.id === formData.id ? response.data : u)));
       } else {
         const response = await axios.post(
-          "http://localhost:8000/usuario/",
+          `${import.meta.env.VITE_API_URL}/usuario/`,
           formData,
           axiosConfig
         );
@@ -98,7 +98,7 @@ const AdminUsuarios = () => {
     if (!window.confirm("¿Seguro que quieres eliminar este usuario?")) return;
 
     try {
-      await axios.delete(`http://localhost:8000/usuario/${id}`, axiosConfig);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/usuario/${id}`, axiosConfig);
       setUsuarios(usuarios.filter((u) => u.id !== id));
     } catch (err) {
       console.error(err.response?.data || err.message);

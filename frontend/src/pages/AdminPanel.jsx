@@ -23,7 +23,7 @@ function AdminPanel() {
     }
 
     axios
-      .get("http://mitiendaproyecto.zapto.org:8000/usuario/me", {
+      .get(`${import.meta.env.VITE_API_URL}/usuario/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {

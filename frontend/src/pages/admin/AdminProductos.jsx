@@ -23,7 +23,7 @@ const AdminProducto = () => {
   });
 
   const token = localStorage.getItem("token");
-  const API = "http://localhost:8000/producto/";
+  const API = `${import.meta.env.VITE_API_URL}/producto/`;
 
   // ---------------------------
   // Fetch productos, categorias y subcategorias
@@ -34,12 +34,12 @@ const AdminProducto = () => {
   };
 
   const fetchCategorias = async () => {
-    const res = await axios.get("http://localhost:8000/categoria/");
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/categoria/`);
     setCategorias(res.data);
   };
 
   const fetchSubcategorias = async () => {
-    const res = await axios.get("http://localhost:8000/subcategoria/all");
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/subcategoria/all`);
     setSubcategorias(res.data);
   };
 

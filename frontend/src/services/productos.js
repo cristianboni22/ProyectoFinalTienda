@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://mitiendaproyecto.zapto.org:8000", // ⚠️ cambia esto si tu backend corre en otro host/puerto
+  baseURL: `${import.meta.env.VITE_API_URL}`, // ⚠️ cambia esto si tu backend corre en otro host/puerto
 });
 
 // Obtener productos (puedes pasar filtros si tu backend los soporta)

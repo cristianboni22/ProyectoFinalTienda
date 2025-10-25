@@ -15,19 +15,19 @@ function Profile() {
       return;
     }
 
-    const fetchUsuario = fetch("http://mitiendaproyecto.zapto.org:8000/usuario/me", {
+    const fetchUsuario = fetch(`${import.meta.env.VITE_API_URL}/usuario/me`, {
       headers: { Authorization: `Bearer ${token}` },
     }).then((res) =>
       res.ok ? res.json() : Promise.reject("No se pudo obtener el usuario")
     );
 
-    const fetchPedidos = fetch("http://mitiendaproyecto.zapto.org:8000/pedido/", {
+    const fetchPedidos = fetch(`${import.meta.env.VITE_API_URL}/pedido/`, {
       headers: { Authorization: `Bearer ${token}` },
     }).then((res) =>
       res.ok ? res.json() : Promise.reject("No se pudieron cargar los pedidos")
     );
 
-    const fetchProductos = fetch("http://mitiendaproyecto.zapto.org:8000/producto/").then((res) =>
+    const fetchProductos = fetch(`${import.meta.env.VITE_API_URL}/producto/`).then((res) =>
       res.ok ? res.json() : Promise.reject("No se pudieron cargar los productos")
     );
 
@@ -39,7 +39,7 @@ function Profile() {
         const pedidosConDetalles = await Promise.all(
           pedidosData.map(async (pedido) => {
             const detallesRes = await fetch(
-              `http://mitiendaproyecto.zapto.org:8000/detalle_pedido/pedido/${pedido.id}`,
+              `${import.meta.env.VITE_API_URL}/detalle_pedido/pedido/${pedido.id}`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
             const detalles = detallesRes.ok ? await detallesRes.json() : [];

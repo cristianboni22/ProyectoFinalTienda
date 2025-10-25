@@ -13,7 +13,7 @@ function AdminPedidos() {
   // === FETCH PEDIDOS ===
   const fetchPedidos = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/pedido/", axiosConfig);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/pedido/`, axiosConfig);
       setPedidos(response.data);
     } catch (err) {
       console.error(err.response?.data || err.message);
@@ -29,7 +29,7 @@ function AdminPedidos() {
   const actualizarEstado = async (id, nuevoEstado) => {
     try {
       await axios.put(
-        `http://localhost:8000/pedido/${id}`,
+        `${import.meta.env.VITE_API_URL}/pedido/${id}`,
         { estado: nuevoEstado },
         axiosConfig
       );

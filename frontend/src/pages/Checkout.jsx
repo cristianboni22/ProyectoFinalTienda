@@ -22,7 +22,7 @@ function Checkout() {
     }
 
     axios
-      .get("http://mitiendaproyecto.zapto.org:8000/usuario/me", { headers })
+      .get(`${import.meta.env.VITE_API_URL}/usuario/me`, { headers })
       .then((res) => {
         setUserData(res.data);
         setDireccion(res.data.direccion || "");
@@ -49,7 +49,7 @@ function Checkout() {
     try {
       // Crear pedido
       const pedidoRes = await axios.post(
-        "http://mitiendaproyecto.zapto.org:8000/pedido/",
+        `${import.meta.env.VITE_API_URL}/pedido/`,
         {
           direccion_envio: direccion.trim(),
           total: parseFloat(total.toFixed(2)),
@@ -63,7 +63,7 @@ function Checkout() {
       // Crear detalles de pedido
       for (const item of cart) {
         await axios.post(
-          "http://mitiendaproyecto.zapto.org:8000/detalle_pedido/",
+          `${import.meta.env.VITE_API_URL}/detalle_pedido/`,
           {
             id_pedido,
             id_producto: item.product.id,

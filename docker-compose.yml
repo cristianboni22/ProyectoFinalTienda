@@ -7,12 +7,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: tienda
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - tienda_net
+
   adminer:
     image: adminer
     restart: always
@@ -23,6 +22,9 @@ services:
 
   backend:
     build: ./backend
+    expose:
+    - "8000"
+    # opcionalmente para debug:
     ports:
       - "8000:8000"
     volumes:
@@ -36,8 +38,8 @@ services:
 
   frontend:
     build: ./frontend
-    ports:
-      - "5173:5173"
+    expose:
+      - "80"
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -47,15 +49,16 @@ services:
   https-portal:
     image: steveltn/https-portal:1
     ports:
-        - 80:80
-        - 443:443
+      - 80:80
+      - 443:443
     environment:
-        #DOMAINS: "localhost -> http://frontend:5173 #local"
-        DOMAINS: "${DOMAIN} -> http://frontend:5173 #production"
+      DOMAINS: "${DOMAIN} -> http://frontend:80"
+      STAGE: "staging" # usa "staging" si quieres probar sin certificados reales
+      FORCE_RENEW: "true"
     volumes:
-        - ssl_certs_data:/var/lib/https-portal
+      - ssl_certs_data:/var/lib/https-portal
     depends_on:
-        - frontend
+      - frontend
     restart: always
     networks:
       - tienda_net

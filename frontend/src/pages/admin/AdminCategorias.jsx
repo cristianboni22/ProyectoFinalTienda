@@ -20,7 +20,7 @@ function AdminCategorias() {
   // --- Fetch ---
   const fetchCategorias = () => {
     axios
-      .get("http://localhost:8000/categoria/", {
+      .get(`${import.meta.env.VITE_API_URL}/categoria/`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setCategorias(res.data))
@@ -29,7 +29,7 @@ function AdminCategorias() {
 
   const fetchSubcategorias = () => {
     axios
-      .get("http://localhost:8000/subcategoria/all", {
+      .get("${import.meta.env.VITE_API_URL}/subcategoria/all", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setSubcategorias(res.data))
@@ -53,8 +53,8 @@ function AdminCategorias() {
   const handleSubmitCat = (e) => {
     e.preventDefault();
     const url = editandoCat
-      ? `http://localhost:8000/categoria/${editandoCat}`
-      : "http://localhost:8000/categoria/";
+      ? `${import.meta.env.VITE_API_URL}/categoria/${editandoCat}`
+      : `${import.meta.env.VITE_API_URL}/categoria/`;
     const method = editandoCat ? axios.put : axios.post;
 
     method(url, nuevaCat, { headers: { Authorization: `Bearer ${token}` } })
@@ -74,8 +74,8 @@ function AdminCategorias() {
       id_categoria: parseInt(nuevaSub.id_categoria),
     };
     const url = editandoSub
-      ? `http://localhost:8000/subcategoria/${editandoSub}`
-      : "http://localhost:8000/subcategoria/";
+      ? `${import.meta.env.VITE_API_URL}/subcategoria/${editandoSub}`
+      : `${import.meta.env.VITE_API_URL}/subcategoria/`;
     const method = editandoSub ? axios.put : axios.post;
 
     method(url, payload, { headers: { Authorization: `Bearer ${token}` } })
@@ -90,7 +90,7 @@ function AdminCategorias() {
   const handleDeleteCat = (id) => {
     if (!window.confirm("¿Eliminar categoría?")) return;
     axios
-      .delete(`http://localhost:8000/categoria/${id}`, {
+      .delete(`${import.meta.env.VITE_API_URL}/categoria/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(fetchCategorias)
@@ -100,7 +100,7 @@ function AdminCategorias() {
   const handleDeleteSub = (id) => {
     if (!window.confirm("¿Eliminar subcategoría?")) return;
     axios
-      .delete(`http://localhost:8000/subcategoria/${id}`, {
+      .delete(`${import.meta.env.VITE_API_URL}/subcategoria/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(fetchSubcategorias)
