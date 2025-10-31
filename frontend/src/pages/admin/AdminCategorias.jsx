@@ -29,7 +29,7 @@ function AdminCategorias() {
 
   const fetchSubcategorias = () => {
     axios
-      .get("${import.meta.env.VITE_API_URL}/subcategoria/all", {
+      .get(`${import.meta.env.VITE_API_URL}/subcategoria/all`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setSubcategorias(res.data))

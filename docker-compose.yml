@@ -49,10 +49,11 @@ services:
   https-portal:
     image: steveltn/https-portal:1
     ports:
-      - "80:80"
-      - "443:443"
+      - 80:80
+      - 443:443
     environment:
-      DOMAINS: "mitiendaproyecto.zapto.org -> http://frontend:80"
+      DOMAINS: >
+        mitiendaproyecto.zapto.org -> http://frontend:80
       STAGE: 'production'
     volumes:
       - ssl_certs_data:/var/lib/https-portal
@@ -61,6 +62,8 @@ services:
     restart: always
     networks:
       - tienda_net
+
+
 
 volumes:
   postgres_data:
