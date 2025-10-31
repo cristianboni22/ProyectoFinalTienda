@@ -19,11 +19,7 @@ from app.auth import get_current_user,admin_required
 router = APIRouter()
 
 @router.post("/", response_model=DetallePedido, status_code=status.HTTP_201_CREATED)
-def crear_detalle_pedido(
-    detalle: DetallePedidoCreate,
-    db: Session = Depends(get_db),
-    current_user: models.Usuario = Depends(get_current_user)
-):
+def crear_detalle_pedido(detalle: DetallePedidoCreate,db: Session = Depends(get_db),current_user: models.Usuario = Depends(get_current_user)):
     try:
         # Verificar que el pedido existe y pertenece al usuario actual
         pedido_db = db.query(models.Pedido).filter(models.Pedido.id == detalle.id_pedido,
@@ -61,17 +57,17 @@ def crear_detalle_pedido(
         raise HTTPException(status_code=500, detail=f"Error al crear detalle de pedido: {str(e)}")
 
 @router.get("/", response_model=list[DetallePedido])
-def obtener_detalles_pedido(db: Session = Depends(get_db)):
+def obtener_detalles_pedido(db: Session = Depends(get_db),current_user: str = Depends(get_current_user)):
     return db.query(models.DetallePedido).all()
 
 @router.get("/pedido/{id_pedido}", response_model=list[DetallePedido])
-def obtener_detalles_por_pedido(id_pedido: int, db: Session = Depends(get_db)):
+def obtener_detalles_por_pedido(id_pedido: int, db: Session = Depends(get_db),current_user: str = Depends(get_current_user)):
     return db.query(models.DetallePedido).filter(
         models.DetallePedido.id_pedido == id_pedido
     ).all()
 
 @router.get("/{id}", response_model=DetallePedido)
-def obtener_detalle_pedido(id: int, db: Session = Depends(get_db)):
+def obtener_detalle_pedido(id: int, db: Session = Depends(get_db),current_user: str = Depends(get_current_user)):
     detalle = db.query(models.DetallePedido).filter(models.DetallePedido.id == id).first()
     if not detalle:
         raise HTTPException(

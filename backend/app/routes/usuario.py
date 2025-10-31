@@ -14,7 +14,7 @@ def hash_password(password: str):
     return pwd_context.hash(password)
 
 @router.post("/", response_model=list[UsuarioOut])
-def crear_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db)):
+def crear_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db),get_current_user=Depends(get_current_user)):
     # Comprobar si el email ya existe
     existing_user = db.query(models.Usuario).filter(models.Usuario.email == usuario.email).first()
     if existing_user:
@@ -42,16 +42,16 @@ def crear_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db)):
     return usuarios
 
 @router.get("/me", response_model=UsuarioOut)
-def leer_usuario_actual(current_user: models.Usuario = Depends(get_current_user)):
+def leer_usuario_actual(current_user: models.Usuario = Depends(get_current_user),get_current_user=Depends(get_current_user)):
     return current_user
 
 
 @router.get("/", response_model=list[UsuarioOut])
-def obtener_usuarios(db: Session = Depends(get_db)):
+def obtener_usuarios(db: Session = Depends(get_db),get_current_user=Depends(get_current_user)):
     return db.query(models.Usuario).all()
 
 @router.get("/{id}", response_model=UsuarioOut)
-def obtener_usuario(id: int, db: Session = Depends(get_db)):
+def obtener_usuario(id: int, db: Session = Depends(get_db),get_current_user=Depends(get_current_user)):
     usuario = db.query(models.Usuario).filter(models.Usuario.id == id).first()
     if not usuario:
         raise HTTPException(

@@ -75,11 +75,7 @@ def crear_pago(pago: PagoCreate, db: Session = Depends(get_db),current_user: str
         )
 
 @router.get("/", response_model=list[Pago])
-def obtener_pagos(
-    estado: Optional[str] = None,
-    metodo: Optional[str] = None,
-    db: Session = Depends(get_db)
-):
+def obtener_pagos(estado: Optional[str] = None,metodo: Optional[str] = None,db: Session = Depends(get_db),current_user: str = Depends(get_current_user),):
     query = db.query(models.Pago)
     
     if estado:
@@ -101,7 +97,7 @@ def obtener_pagos(
     return query.order_by(models.Pago.fecha_pago.desc()).all()
 
 @router.get("/pedido/{id_pedido}", response_model=Pago)
-def obtener_pago_por_pedido(id_pedido: int, db: Session = Depends(get_db)):
+def obtener_pago_por_pedido(id_pedido: int, db: Session = Depends(get_db),current_user: str = Depends(get_current_user),):
     pago = db.query(models.Pago).filter(models.Pago.id_pedido == id_pedido).first()
     if not pago:
         raise HTTPException(
@@ -111,7 +107,7 @@ def obtener_pago_por_pedido(id_pedido: int, db: Session = Depends(get_db)):
     return pago
 
 @router.get("/{id}", response_model=Pago)
-def obtener_pago(id: int, db: Session = Depends(get_db)):
+def obtener_pago(id: int, db: Session = Depends(get_db),current_user: str = Depends(get_current_user),):
     pago = db.query(models.Pago).filter(models.Pago.id == id).first()
     if not pago:
         raise HTTPException(
@@ -121,14 +117,7 @@ def obtener_pago(id: int, db: Session = Depends(get_db)):
     return pago
 
 @router.put("/{id}", response_model=Pago)
-def actualizar_pago(
-    id: int,
-    estado_pago: Optional[str] = None,
-    referencia_pago: Optional[str] = None,
-    db: Session = Depends(get_db),
-    current_user: str = Depends(get_current_user),
-    admin=Depends(admin_required) 
-):
+def actualizar_pago(id: int,estado_pago: Optional[str] = None,referencia_pago: Optional[str] = None,db: Session = Depends(get_db),current_user: str = Depends(get_current_user),admin=Depends(admin_required) ):
     db_pago = db.query(models.Pago).filter(models.Pago.id == id).first()
     if not db_pago:
         raise HTTPException(

@@ -69,7 +69,7 @@ function Home() {
                       </div>
                     )}
                     <div className="card-body text-center">
-                      <h5 className="card-title fw-bold">{p.nombre}</h5>
+                      <h1 className="card-title fw-bold">{p.nombre}</h1>
                       <p className="card-text fs-5 text-primary fw-semibold">
                         €{p.precio.toFixed(2)}
                       </p>

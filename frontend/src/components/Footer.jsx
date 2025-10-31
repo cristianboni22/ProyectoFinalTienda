@@ -3,9 +3,9 @@ function Footer() {
     <footer className="bg-dark text-white mt-5 pt-5 pb-3">
       <div className="container d-flex flex-column flex-md-row justify-content-between align-items-center">
         {/* Logo */}
-        <h4 className="fw-bold mb-3 mb-md-0">
+        <h1 className="fw-bold mb-3 mb-md-0">
           Mi<span className="text-warning">Tienda</span>
-        </h4>
+        </h1>
 
         {/* Links */}
         <ul className="list-unstyled d-flex gap-4 mb-3 mb-md-0">
@@ -14,13 +14,6 @@ function Footer() {
           <li><a href="/nosotros" className="text-white text-decoration-none">Nosotros</a></li>
           <li><a href="/contacto" className="text-white text-decoration-none">Contacto</a></li>
         </ul>
-
-        {/* Redes sociales */}
-        <div className="d-flex gap-3">
-          <a href="#" className="text-white fs-5"><i className="bi bi-facebook"></i></a>
-          <a href="#" className="text-white fs-5"><i className="bi bi-instagram"></i></a>
-          <a href="#" className="text-white fs-5"><i className="bi bi-twitter"></i></a>
-        </div>
       </div>
       <div className="text-center mt-3">
         <small>&copy; 2025 MiTienda - Todos los derechos reservados.</small>

@@ -25,6 +25,7 @@ function Navbar() {
           <button
             className="navbar-toggler border-0"
             type="button"
+            aria-label="Abrir menú de navegación"
             onClick={() => setIsOpen(!isOpen)}
           >
             <span className="navbar-toggler-icon"></span>
@@ -53,7 +54,7 @@ function Navbar() {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="btn btn-outline-primary px-3 py-2 fw-bold" to="/carrito">
+                <Link className="btn btn-outline-primary text-light px-3 py-2 fw-bold" to="/carrito">
                   🛒 Carrito
                 </Link>
               </li>

@@ -9,6 +9,7 @@ from app import models
 from app.schemas.producto import ProductoCreate, ProductoOut
 from app.schemas.variante import VarianteCreate
 from app.schemas.imagen import ImagenCreate
+from app.auth import get_current_user,admin_required
 
 router = APIRouter()
 
@@ -20,7 +21,7 @@ os.makedirs(IMAGEN_FOLDER, exist_ok=True)
 # Crear producto
 # ---------------------------
 @router.post("/", response_model=ProductoOut)
-def crear_producto(producto: ProductoCreate, request: Request, db: Session = Depends(get_db)):
+def crear_producto(producto: ProductoCreate, request: Request, db: Session = Depends(get_db), admin=Depends(admin_required),get_current_user=Depends(get_current_user)):
     db_producto = models.Producto(
         nombre=producto.nombre,
         descripcion=producto.descripcion,
@@ -63,16 +64,7 @@ def crear_producto(producto: ProductoCreate, request: Request, db: Session = Dep
 # Listar productos
 # ---------------------------
 @router.get("/", response_model=List[ProductoOut])
-def listar_productos(
-    request: Request,
-    db: Session = Depends(get_db),
-    activo: Optional[bool] = None,
-    id_categoria: Optional[int] = None,
-    id_subcategoria: Optional[int] = None,
-    precio_min: Optional[float] = None,
-    precio_max: Optional[float] = None,
-    limit: int = Query(10, ge=1, le=100),
-    offset: int = Query(0, ge=0)
+def listar_productos(request: Request,db: Session = Depends(get_db),activo: Optional[bool] = None,id_categoria: Optional[int] = None,id_subcategoria: Optional[int] = None,precio_min: Optional[float] = None,precio_max: Optional[float] = None,limit: int = Query(10, ge=1, le=100),offset: int = Query(0, ge=0)
 ):
     query = db.query(models.Producto).options(
         selectinload(models.Producto.variantes),
@@ -124,7 +116,7 @@ def obtener_producto(id: int, request: Request, db: Session = Depends(get_db)):
 # Actualizar producto
 # ---------------------------
 @router.put("/{id}", response_model=ProductoOut)
-def actualizar_producto(id: int, producto: ProductoCreate, request: Request, db: Session = Depends(get_db)):
+def actualizar_producto(id: int, producto: ProductoCreate, request: Request, db: Session = Depends(get_db), admin=Depends(admin_required),get_current_user=Depends(get_current_user)):
     db_producto = db.query(models.Producto).filter(models.Producto.id == id).first()
     if not db_producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
@@ -163,7 +155,7 @@ def actualizar_producto(id: int, producto: ProductoCreate, request: Request, db:
 # Eliminar producto
 # ---------------------------
 @router.delete("/{id}", status_code=204)
-def eliminar_producto(id: int, db: Session = Depends(get_db)):
+def eliminar_producto(id: int, db: Session = Depends(get_db), admin=Depends(admin_required),get_current_user=Depends(get_current_user)):
     db_producto = db.query(models.Producto).filter(models.Producto.id == id).first()
     if not db_producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
@@ -198,7 +190,7 @@ def eliminar_producto(id: int, db: Session = Depends(get_db)):
 # Subir imagen
 # ---------------------------
 @router.post("/upload-imagen/", status_code=201)
-def upload_imagen(file: UploadFile = File(...)):
+def upload_imagen(file: UploadFile = File(...), admin=Depends(admin_required),get_current_user=Depends(get_current_user)):
     ruta = os.path.join(IMAGEN_FOLDER, file.filename)
     with open(ruta, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
