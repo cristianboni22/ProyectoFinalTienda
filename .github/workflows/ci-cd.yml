@@ -14,7 +14,7 @@ env:
 jobs:
 
   # ----------------------
-  # TEST BACKEND
+  # TEST BACKEND (CORREGIDO)
   # ----------------------
   test-backend:
     runs-on: ubuntu-latest
@@ -24,7 +24,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.13
+          python-version: '3.13'
 
       - name: Install backend dependencies
         run: |
@@ -35,13 +35,14 @@ jobs:
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$(pwd)/backend" >> $GITHUB_ENV
 
+      # 🚨 SOLUCIÓN: Usar 'python -m pytest' 🚨
       - name: Run backend tests
         run: |
           cd backend
-          pytest tests --verbose
+          python -m pytest tests --verbose
 
   # ----------------------
-  # TEST FRONTEND
+  # TEST FRONTEND (CORREGIDO)
   # ----------------------
   test-frontend:
     runs-on: ubuntu-latest
@@ -53,11 +54,12 @@ jobs:
         with:
           node-version: 20
 
+      # 🚨 SOLUCIÓN: Agregada @testing-library/react 🚨
       - name: Install frontend dependencies
         run: |
           cd frontend
           npm install
-          npm install --save-dev @babel/core @babel/preset-env @babel/preset-react babel-jest
+          npm install --save-dev @testing-library/react @babel/core @babel/preset-env @babel/preset-react babel-jest
 
       - name: Run frontend tests
         run: |
