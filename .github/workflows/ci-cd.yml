@@ -13,9 +13,9 @@ env:
 
 jobs:
 
-  # ----------------------
-  # TEST BACKEND (CON ENTORNO VIRTUAL)
-  # ----------------------
+# ----------------------
+# TEST BACKEND (CORRECCIÓN FINAL)
+# ----------------------
   test-backend:
     runs-on: ubuntu-latest
     steps:
@@ -26,28 +26,24 @@ jobs:
         with:
           python-version: '3.13'
 
-      # 🚨 SOLUCIÓN BACKEND: Instalación y activación del entorno virtual (venv) 🚨
+      # Paso de instalación y activación
       - name: Install backend dependencies (using venv)
         run: |
-          # Crear y activar el entorno virtual
           python -m venv venv
-          source venv/bin/activate
+          source venv/bin/activate # Activamos para que 'pip' sepa dónde instalar
           
-          # Instalar dependencias dentro del venv
           pip install --upgrade pip
           pip install -r backend/requirements.txt 
           
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$(pwd)/backend" >> $GITHUB_ENV
 
+      # 🚨 SOLUCIÓN: Usar el python del venv para ejecutar pytest como módulo 🚨
       - name: Run backend tests
         run: |
-          # Activar el entorno virtual nuevamente antes de ejecutar pytest
-          source venv/bin/activate
           cd backend
-          # Ahora 'pytest' será encontrado porque está en el PATH del venv
-          pytest tests --verbose
-
+          # Usamos el intérprete específico del venv para ejecutar pytest
+          ../venv/bin/python -m pytest tests --verbose
   # ----------------------
   # TEST FRONTEND (CONFIGURACIÓN JEST/BABEL)
   # ----------------------
