@@ -14,7 +14,7 @@ env:
 jobs:
 
   # ----------------------
-  # TEST BACKEND (SOLUCIÓN FINAL)
+  # TEST BACKEND (CON ENTORNO VIRTUAL)
   # ----------------------
   test-backend:
     runs-on: ubuntu-latest
@@ -26,22 +26,30 @@ jobs:
         with:
           python-version: '3.13'
 
-      # 🚨 SOLUCIÓN BACKEND: Instalamos desde la raíz para asegurar la ruta 🚨
-      - name: Install backend dependencies
+      # 🚨 SOLUCIÓN BACKEND: Instalación y activación del entorno virtual (venv) 🚨
+      - name: Install backend dependencies (using venv)
         run: |
+          # Crear y activar el entorno virtual
+          python -m venv venv
+          source venv/bin/activate
+          
+          # Instalar dependencias dentro del venv
           pip install --upgrade pip
-          pip install -r backend/requirements.txt # Apuntamos a la ruta
-
+          pip install -r backend/requirements.txt 
+          
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$(pwd)/backend" >> $GITHUB_ENV
 
       - name: Run backend tests
         run: |
+          # Activar el entorno virtual nuevamente antes de ejecutar pytest
+          source venv/bin/activate
           cd backend
-          python -m pytest tests --verbose # Usamos python -m pytest
+          # Ahora 'pytest' será encontrado porque está en el PATH del venv
+          pytest tests --verbose
 
   # ----------------------
-  # TEST FRONTEND (SOLUCIÓN FINAL)
+  # TEST FRONTEND (CONFIGURACIÓN JEST/BABEL)
   # ----------------------
   test-frontend:
     runs-on: ubuntu-latest
@@ -57,9 +65,10 @@ jobs:
         run: |
           cd frontend
           npm install
+          # 🚨 SOLUCIÓN: Agregada @testing-library/react y dependencias de Babel
           npm install --save-dev @testing-library/react @babel/core @babel/preset-env @babel/preset-react babel-jest
-          # 🚨 SOLUCIÓN FRONTEND: Agregamos una configuración mínima de Babel si no existe 🚨
-          # Esto es crucial para que Jest entienda React (JSX) y la sintaxis de ES6/Vite
+          
+          # 🚨 SOLUCIÓN: Configuración de Babel para que Jest entienda JSX y módulos modernos (como import.meta.env) 🚨
           echo '{ "presets": ["@babel/preset-env", "@babel/preset-react"] }' > .babelrc
 
       - name: Run frontend tests
