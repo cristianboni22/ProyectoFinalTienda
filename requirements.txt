@@ -5,9 +5,6 @@ pytest
 httpx
 email-validator
 SQLAlchemy
-passlib          
+passlib
 python-jose
-psycopg2-binary
-python-dotenv
-pydantic
-python-multipart
+bcrypt
