@@ -13,9 +13,9 @@ env:
 
 jobs:
 
-# ----------------------
-# TEST BACKEND (CORRECCIÓN FINAL)
-# ----------------------
+  # ----------------------
+  # TEST BACKEND (SIMPLIFICADO Y ROBUSTO)
+  # ----------------------
   test-backend:
     runs-on: ubuntu-latest
     steps:
@@ -26,26 +26,23 @@ jobs:
         with:
           python-version: '3.13'
 
-      # Paso de instalación y activación
-      - name: Install backend dependencies (using venv)
+      # 🚨 SOLUCIÓN BACKEND: Instalación directa sin venv 🚨
+      - name: Install backend dependencies
         run: |
-          python -m venv venv
-          source venv/bin/activate # Activamos para que 'pip' sepa dónde instalar
-          
-          pip install --upgrade pip
-          pip install -r backend/requirements.txt 
-          
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt # Instala a nivel del entorno de la Acción
+
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$(pwd)/backend" >> $GITHUB_ENV
 
-      # 🚨 SOLUCIÓN: Usar el python del venv para ejecutar pytest como módulo 🚨
+      # 🚨 SOLUCIÓN BACKEND: Usar 'python -m pytest' 🚨
       - name: Run backend tests
         run: |
           cd backend
-          # Usamos el intérprete específico del venv para ejecutar pytest
-          ../venv/bin/python -m pytest tests --verbose
+          python -m pytest tests --verbose # Usa el intérprete para encontrar el módulo
+
   # ----------------------
-  # TEST FRONTEND (CONFIGURACIÓN JEST/BABEL)
+  # TEST FRONTEND (Mantiene configuración Babel)
   # ----------------------
   test-frontend:
     runs-on: ubuntu-latest
@@ -61,10 +58,8 @@ jobs:
         run: |
           cd frontend
           npm install
-          # 🚨 SOLUCIÓN: Agregada @testing-library/react y dependencias de Babel
           npm install --save-dev @testing-library/react @babel/core @babel/preset-env @babel/preset-react babel-jest
-          
-          # 🚨 SOLUCIÓN: Configuración de Babel para que Jest entienda JSX y módulos modernos (como import.meta.env) 🚨
+          # Configuración de Babel para que Jest entienda JSX y módulos modernos
           echo '{ "presets": ["@babel/preset-env", "@babel/preset-react"] }' > .babelrc
 
       - name: Run frontend tests
