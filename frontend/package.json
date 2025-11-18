@@ -42,6 +42,8 @@
     "transform": {
       "^.+\\.(js|jsx)$": "babel-jest"
     },
-    "moduleFileExtensions": ["js", "jsx"]
+    "moduleNameMapper": {
+      "^\\.\\.\\/services\\/auth$": "<rootDir>/src/services/__mocks__/auth.js"
+    }
   }
 }
