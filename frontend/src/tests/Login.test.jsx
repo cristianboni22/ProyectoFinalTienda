@@ -1,3 +1,5 @@
+// src/tests/Login.test.jsx
+import React from 'react'; // 🚨 ¡IMPORTACIÓN FALTANTE! 🚨
 import { render, screen, fireEvent } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
 import Login from "../pages/Login";
