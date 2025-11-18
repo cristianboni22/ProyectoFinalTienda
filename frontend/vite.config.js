@@ -8,7 +8,6 @@ export default defineConfig({
     port: 5173,
     allowedHosts: [
       'all', // Permite cualquier dominio
-      'mitiendaproyecto.zapto.org', // Tu dominio específico
       '*'
     ]
   }

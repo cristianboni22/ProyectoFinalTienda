@@ -18,13 +18,15 @@ class UsuarioCreate(UsuarioBase):
     telefono: str = ""
     rol: str = "cliente"
 
-    class Config:
-        allow_population_by_field_name = True  # Permite usar alias
+    model_config = {
+        "validate_by_name": True
+    } # Permite usar alias
 
 class UsuarioOut(UsuarioBase):
     id: int
-    fecha_registro: Optional[datetime]
+    fecha_registro: Optional[datetime] = None
     rol: str
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }

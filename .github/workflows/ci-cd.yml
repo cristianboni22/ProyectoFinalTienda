@@ -1,0 +1,124 @@
+name: CI/CD Backend & Frontend
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  BACKEND_ECR: my-backend-app
+  FRONTEND_ECR: my-frontend-app
+  IMAGE_TAG: latest
+
+jobs:
+
+  # ----------------------
+  # TEST BACKEND
+  # ----------------------
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.13
+
+      - name: Install backend dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Run backend tests
+        run: |
+          python -m unittest discover backend/tests
+
+
+  # ----------------------
+  # TEST FRONTEND
+  # ----------------------
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          npm test -- --watchAll=false
+
+
+  # ----------------------
+  # BUILD & DEPLOY IMAGES
+  # ----------------------
+  build-and-deploy:
+    needs: [test-backend, test-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      # Configurar credenciales AWS
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Login a ECR
+      - name: Log in to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # ----------------------
+      # Build & Push Backend
+      # ----------------------
+      - name: Build & Push Backend Image
+        run: |
+          docker build -t $BACKEND_ECR:$IMAGE_TAG ./backend
+          docker tag $BACKEND_ECR:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$BACKEND_ECR:$IMAGE_TAG
+          docker push ${{ steps.login-ecr.outputs.registry }}/$BACKEND_ECR:$IMAGE_TAG
+
+      # ----------------------
+      # Build & Push Frontend
+      # ----------------------
+      - name: Build & Push Frontend Image
+        run: |
+          docker build -t $FRONTEND_ECR:$IMAGE_TAG ./frontend
+          docker tag $FRONTEND_ECR:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$FRONTEND_ECR:$IMAGE_TAG
+          docker push ${{ steps.login-ecr.outputs.registry }}/$FRONTEND_ECR:$IMAGE_TAG
+
+      # ----------------------
+      # Deploy Backend a ECS
+      # ----------------------
+      - name: Deploy Backend to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ecs/backend-task.json
+          service: backend-service
+          cluster: my-cluster
+          wait-for-service-stability: true
+
+      # ----------------------
+      # Deploy Frontend a ECS
+      # ----------------------
+      - name: Deploy Frontend to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ecs/frontend-task.json
+          service: frontend-service
+          cluster: my-cluster
+          wait-for-service-stability: true
