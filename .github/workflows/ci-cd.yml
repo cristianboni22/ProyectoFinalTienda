@@ -7,11 +7,12 @@ on:
   workflow_dispatch:
 
 env:
+  IMAGE_TAG: latest
   BACKEND_IMAGE: cristianboni22/backend-app
   FRONTEND_IMAGE: cristianboni22/frontend-app
-  IMAGE_TAG: latest
 
 jobs:
+
   # ----------------------
   # TEST BACKEND
   # ----------------------
@@ -30,9 +31,12 @@ jobs:
           pip install --upgrade pip
           pip install -r backend/requirements.txt
 
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$(pwd)/backend" >> $GITHUB_ENV
+
       - name: Run backend tests
         run: |
-          python -m unittest discover -s backend/tests -p "test_*.py"
+          python -m unittest discover -s backend/tests -p "test_*.py" -v
 
   # ----------------------
   # TEST FRONTEND
@@ -55,7 +59,7 @@ jobs:
       - name: Run frontend tests
         run: |
           cd frontend
-          npm test -- --watchAll=false
+          npx jest --watchAll=false
 
   # ----------------------
   # BUILD & PUSH DOCKER IMAGES
@@ -66,20 +70,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # Login a Docker Hub
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      # Login Docker Hub
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      # Build & push backend
+      # Build & Push Backend
       - name: Build & Push Backend Image
         run: |
           docker build -t $BACKEND_IMAGE:$IMAGE_TAG ./backend
           docker push $BACKEND_IMAGE:$IMAGE_TAG
 
-      # Build & push frontend
+      # Build & Push Frontend
       - name: Build & Push Frontend Image
         run: |
           docker build -t $FRONTEND_IMAGE:$IMAGE_TAG ./frontend
