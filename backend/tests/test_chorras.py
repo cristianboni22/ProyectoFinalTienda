@@ -4,6 +4,7 @@ from app.schemas.usuario import UsuarioCreate, UsuarioOut
 from app.schemas.producto import ProductoCreate, ProductoOut
 from app.routes.usuario import hash_password
 from fastapi.testclient import TestClient
+from passlib.context import CryptContext
 from app.main import app  # Asegúrate de que tu FastAPI app se llame 'app' en main.py
 
 class TestSchemas(unittest.TestCase):
