@@ -70,9 +70,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # Login Docker Hub
+      # Login Docker Hub usando la Action oficial
       - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       # Build & Push Backend
       - name: Build & Push Backend Image
