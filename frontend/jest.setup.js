@@ -1,19 +1,11 @@
 // frontend/jest.setup.js
 
-// Importamos TextEncoder y TextDecoder del módulo 'util' de Node.js
-// La dependencia 'util' debe estar disponible en Node.js, donde Jest se ejecuta.
+// 1. Polyfill para TextEncoder (resuelve el problema anterior con react-router)
 const { TextEncoder, TextDecoder } = require('util');
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
 
-// Si TextEncoder no está definido globalmente (común en ambientes JSDOM antiguos), lo definimos.
-if (typeof global.TextEncoder === 'undefined') {
-  global.TextEncoder = TextEncoder;
-}
-if (typeof global.TextDecoder === 'undefined') {
-  global.TextDecoder = TextDecoder;
-}
-
-// ... (Aquí debajo va tu mock de import.meta, si lo necesitas)
-/*
+// 2. Mock para import.meta (resuelve el problema actual con Vite)
 global.import = {
   meta: {
     env: {
@@ -21,4 +13,3 @@ global.import = {
     },
   },
 };
-*/
