@@ -42,6 +42,8 @@
     "transform": {
       "^.+\\.(js|jsx)$": "babel-jest"
     },
-    "moduleFileExtensions": ["js", "jsx"]
+    "moduleNameMapper": {
+      "^.+\\/import\\.meta\\.env$": "<rootDir>/env-mock.js"
+    }
   }
 }
