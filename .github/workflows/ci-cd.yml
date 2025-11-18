@@ -14,7 +14,7 @@ env:
 jobs:
 
   # ----------------------
-  # TEST BACKEND (CORREGIDO)
+  # TEST BACKEND (SOLUCIÓN FINAL)
   # ----------------------
   test-backend:
     runs-on: ubuntu-latest
@@ -26,23 +26,22 @@ jobs:
         with:
           python-version: '3.13'
 
+      # 🚨 SOLUCIÓN BACKEND: Instalamos desde la raíz para asegurar la ruta 🚨
       - name: Install backend dependencies
         run: |
-          cd backend
           pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r backend/requirements.txt # Apuntamos a la ruta
 
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$(pwd)/backend" >> $GITHUB_ENV
 
-      # 🚨 SOLUCIÓN: Usar 'python -m pytest' 🚨
       - name: Run backend tests
         run: |
           cd backend
-          python -m pytest tests --verbose
+          python -m pytest tests --verbose # Usamos python -m pytest
 
   # ----------------------
-  # TEST FRONTEND (CORREGIDO)
+  # TEST FRONTEND (SOLUCIÓN FINAL)
   # ----------------------
   test-frontend:
     runs-on: ubuntu-latest
@@ -54,12 +53,14 @@ jobs:
         with:
           node-version: 20
 
-      # 🚨 SOLUCIÓN: Agregada @testing-library/react 🚨
       - name: Install frontend dependencies
         run: |
           cd frontend
           npm install
           npm install --save-dev @testing-library/react @babel/core @babel/preset-env @babel/preset-react babel-jest
+          # 🚨 SOLUCIÓN FRONTEND: Agregamos una configuración mínima de Babel si no existe 🚨
+          # Esto es crucial para que Jest entienda React (JSX) y la sintaxis de ES6/Vite
+          echo '{ "presets": ["@babel/preset-env", "@babel/preset-react"] }' > .babelrc
 
       - name: Run frontend tests
         run: |
@@ -75,20 +76,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # Login Docker Hub usando la Action oficial
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      # Build & Push Backend
       - name: Build & Push Backend Image
         run: |
           docker build -t $BACKEND_IMAGE:$IMAGE_TAG ./backend
           docker push $BACKEND_IMAGE:$IMAGE_TAG
 
-      # Build & Push Frontend
       - name: Build & Push Frontend Image
         run: |
           docker build -t $FRONTEND_IMAGE:$IMAGE_TAG ./frontend
