@@ -126,13 +126,16 @@ const AdminProducto = () => {
   };
 
   const uploadImagen = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const data = new FormData();
-    data.append("file", file);
-    const res = await axios.post(`${API}upload-imagen/`, data);
-    addImagen(res.data.url_imagen);
-  };
+  const file = e.target.files[0];
+  if (!file) return;
+  const data = new FormData();
+  data.append("file", file);
+  const res = await axios.post(`${API}upload-imagen/`, data, {
+    headers: { Authorization: `Bearer ${token}` }, // 👈 header si tu backend lo requiere
+  });
+  addImagen(res.data.url_imagen);
+};
+
 
   // ---------------------------
   // Crear o actualizar producto

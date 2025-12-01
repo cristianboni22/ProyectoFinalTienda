@@ -25,7 +25,7 @@ function Home() {
         className="hero d-flex align-items-center text-white"
         style={{
           height: "50vh",
-          backgroundImage: "url('/src/assets/banner.png')",
+          backgroundColor: "#3498db", // color que quieras
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -44,7 +44,9 @@ function Home() {
         <h2 className="text-center mb-4">Productos destacados</h2>
         <div className="row g-4">
           {productos.length === 0 ? (
-            <p className="text-center text-muted">No hay productos disponibles</p>
+            <p className="text-center text-muted">
+              No hay productos disponibles
+            </p>
           ) : (
             productos.map((p) => (
               <div key={p.id} className="col-md-4">
