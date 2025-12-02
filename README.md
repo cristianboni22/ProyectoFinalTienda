@@ -10,77 +10,32 @@ Backend desarrollado en FastAPI con autenticación JWT, PostgreSQL y SQLAlchemy.
 
 - Git
 
-🔹 Instalación y ejecución automática
+🔹 Instalación y ejecución automática(Linux)
 
 1. Clonar el proyecto 
 ~~~
 git clone https://github.com/tu_usuario/ProyectoFinalTienda.git
-cd ProyectoFinalTienda
-~~~
 
-2. Crear entorno virtual
-~~~
-python -m venv venv
-source venv/bin/activate   # Linux/macOS
-venv\Scripts\activate      # Windows
-~~~
-
-3. Instalar dependencias
-~~~
+#Comando a seguir una vez clonado
+apt update
+apt install python3-pip -y
 pip install -r requirements.txt
-~~~
 
-4. Configurar base de datos
+apt install curl -y
 
-Crea un archivo .env en la raíz con tus variables, por ejemplo:
-~~~
-DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/tienda_db
-SECRET_KEY=clave_super_secreta
-~~~
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 
-5. Crear tablas automáticamente
+apt install -y nodejs
 
-El backend tiene lógica para crear las tablas al iniciar, no necesitas comandos extra.
-
-6. Levantar el backend
-~~~
-uvicorn app.main:app --reload --port 5000
-~~~
-
-🔹 Endpoints principales
-
-Autenticación
----
-|Método |Ruta       |	Descripción         |
-|-------|-----------|---------------------  |
-|POST   |/register  |	Registro de usuario |
-|POST   |/login |	Login → Devuelve JWT    |
-~~~
-Recuerda usar el token JWT en el header Authorization: Bearer <token> para las rutas protegidas.
-~~~
-
-🔹 Tips de desarrollo
-
-- Cada vez que modifiques modelos (models.py) o schemas (schemas/*.py), reinicia el backend para que se creen las tablas nuevas si es necesario.
-- Variables sensibles (JWT, DB) siempre en .env, nunca subirlas a GitHub.
-- Para probar rutas con JWT, puedes usar Postman o Insomnia.
-
-🔹 Comandos útiles
-~~~
-# Activar entorno virtual
-source venv/bin/activate  # Linux/macOS
-venv\Scripts\activate     # Windows
-
-# Levantar servidor
-uvicorn app.main:app --reload --port 5000
-
-# Crear tablas automáticamente (opcional si falla la inicialización)
-python -c "from app.main import create_tables; create_tables()"
+node -v
+npm -v
+#Una vez tenemos instalado pip y npm junto con el requirement lo qeu haremos ahora sera
+cd ProyectoFinalTienda/frontend
+npm install
+npm run build
+cd..
+docker-compose up -d #Para hacerlo en segundo plano
+docker-compose up --build #Para hacerlo en primer plano
 ~~~
 
 
-
-# Levantamiento de Cliente dentro del contendor 
-
-cd frontend
-npm run dev
